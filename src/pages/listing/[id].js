@@ -5,10 +5,10 @@ import { useRouter } from "next/router"
 import Head from "next/head"
 import Image from "next/image"
 import { Heart, MessageCircle, Share2, MapPin, Calendar, User, ChevronLeft, ChevronRight } from "react-feather"
-import { ListingContext } from "../../context/listingContext"
-import { AuthContext } from "../../context/authContext"
-import { ChatContext } from "../../context/chatContext"
-import RelatedListings from "../../components/RelatedListings"
+import { ListingContext } from "../../context/listingContext.js"
+import { AuthContext } from "../../context/authContext.js"
+import { ChatContext } from "../../context/chatContext.js"
+import RelatedListings from "../../components/RelatedListing.js"
 
 export default function ListingDetail() {
   const router = useRouter()
