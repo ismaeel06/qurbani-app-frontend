@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useContext } from "react"
 import { AuthContext } from "../context/authContext"
+import Image from "next/image"
 
 export default function HeroSection() {
   const { user } = useContext(AuthContext)
@@ -19,8 +20,9 @@ export default function HeroSection() {
           <div className="flex flex-wrap gap-4">
             <Link
               href="/catalog"
-              className="bg-white text-green-700 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium text-lg transition-colors"
+              className="bg-white text-green-700 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium text-lg transition-colors flex items-center gap-2"
             >
+              <Image src="/images/browse-cattle-button.svg" alt="Browse Cattle" width={28} height={28} />
               Browse Cattle
             </Link>
             {!user ? (
@@ -31,12 +33,15 @@ export default function HeroSection() {
                 Sign Up / Login
               </Link>
             ) : (
-              <Link
-                href="/add-listing"
-                className="bg-transparent border-2 border-white hover:bg-white hover:text-green-700 px-6 py-3 rounded-lg font-medium text-lg transition-colors"
-              >
-                Add Listing
-              </Link>
+              user.role === "seller" && (
+                <Link
+                  href="/add-listing"
+                  className="bg-transparent border-2 border-white hover:bg-white hover:text-green-700 px-6 py-3 rounded-lg font-medium text-lg transition-colors flex items-center gap-2"
+                >
+                  <Image src="/images/cow.png" alt="Add Listing" width={28} height={28} />
+                  Add Listing
+                </Link>
+              )
             )}
           </div>
         </div>

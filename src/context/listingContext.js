@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useState } from "react";
+import { createContext, useState, useContext } from "react";
+import { AuthContext } from "./authContext";
 
 // Add mock listings data at the top of the file
 const mockListings = [
@@ -132,6 +133,8 @@ export const ListingProvider = ({ children }) => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  const { user, setUser } = useContext(AuthContext);
 
   // Get all listings with filters
   const getListings = async (filters = {}) => {
@@ -311,7 +314,6 @@ export const ListingProvider = ({ children }) => {
   };
 
   // Update listing
-  // Update listing
   const updateListing = async (id, listingData) => {
     try {
       setLoading(true);
@@ -430,6 +432,8 @@ export const ListingProvider = ({ children }) => {
       localStorage.setItem("userData", JSON.stringify(userData));
 
       // Update user in auth context if possible
+      if (setUser) setUser({ ...user, favorites: userData.favorites });
+
       return { success: true };
     } catch (err) {
       setError(err.response?.data?.message || "Failed to toggle favorite");

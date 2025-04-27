@@ -7,6 +7,15 @@ import { useContext } from "react"
 import { AuthContext } from "../context/authContext"
 import { ListingContext } from "../context/listingContext"
 
+// Category image mapping
+const categoryImages = {
+  cow: "/images/cow.png",
+  goat: "/images/goat.png",
+  sheep: "/images/sheep.png",
+  camel: "/images/camel.png",
+  buffalo: "/images/buffalo.png",
+}
+
 export default function FeaturedListings({ listings, isLoading }) {
   const { user } = useContext(AuthContext)
   const { toggleFavorite } = useContext(ListingContext)
@@ -65,7 +74,12 @@ export default function FeaturedListings({ listings, isLoading }) {
               <p className="text-gray-600 mb-2">{listing.location}</p>
               <div className="flex justify-between items-center">
                 <span className="text-xl font-bold text-green-600">Rs. {listing.price.toLocaleString()}</span>
-                <span className="text-sm text-gray-500">{listing.category}</span>
+                {/* Category image in bottom right corner */}
+                {listing.category && categoryImages[listing.category] && (
+                  <span className="inline-block ml-2 align-middle">
+                    <Image src={categoryImages[listing.category]} alt={listing.category} width={28} height={28} />
+                  </span>
+                )}
               </div>
             </div>
           </div>

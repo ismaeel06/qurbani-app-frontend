@@ -9,6 +9,15 @@ import { ListingContext } from "../context/listingContext"
 import { ChatContext } from "../context/chatContext"
 import { useRouter } from "next/router"
 
+// Category image mapping
+const categoryImages = {
+  cow: "/images/cow.png",
+  goat: "/images/goat.png",
+  sheep: "/images/sheep.png",
+  camel: "/images/camel.png",
+  buffalo: "/images/buffalo.png",
+}
+
 export default function ListingCard({ listing, viewMode = "grid" }) {
   const { user } = useContext(AuthContext)
   const { toggleFavorite } = useContext(ListingContext)
@@ -51,6 +60,12 @@ export default function ListingCard({ listing, viewMode = "grid" }) {
         <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-200">
           <div className="relative h-48">
             <Image src={listing.images[0] || "/placeholder.svg"} alt={listing.title} fill className="object-cover" />
+            {/* Category image in the top-left corner */}
+            {listing.category && categoryImages[listing.category] && (
+              <div className="absolute top-2 left-2 bg-white bg-opacity-80 rounded-full p-1 shadow">
+                <Image src={categoryImages[listing.category]} alt={listing.category} width={28} height={28} />
+              </div>
+            )}
             <button
               onClick={handleFavoriteToggle}
               className={`absolute top-2 right-2 p-2 rounded-full ${
@@ -84,6 +99,12 @@ export default function ListingCard({ listing, viewMode = "grid" }) {
         <div className="flex flex-col sm:flex-row">
           <div className="relative h-48 sm:h-auto sm:w-48 md:w-64">
             <Image src={listing.images[0] || "/placeholder.svg"} alt={listing.title} fill className="object-cover" />
+            {/* Category image in the top-left corner of image */}
+            {listing.category && categoryImages[listing.category] && (
+              <div className="absolute top-2 left-2 bg-white bg-opacity-80 rounded-full p-1 shadow">
+                <Image src={categoryImages[listing.category]} alt={listing.category} width={28} height={28} />
+              </div>
+            )}
           </div>
           <div className="flex-1 p-4">
             <div className="flex justify-between">
@@ -102,7 +123,7 @@ export default function ListingCard({ listing, viewMode = "grid" }) {
             <div className="flex justify-between items-center">
               <span className="text-xl font-bold text-green-600">Rs. {listing.price.toLocaleString()}</span>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">{listing.category}</span>
+                {/* Remove category text, only show chat button */}
                 <button onClick={handleChatStart} className="p-2 text-gray-500 hover:text-green-600">
                   <MessageCircle size={20} />
                 </button>

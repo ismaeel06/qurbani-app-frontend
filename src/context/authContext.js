@@ -1,5 +1,7 @@
 "use client";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
+import axios from "axios";
 import { createContext, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
@@ -17,28 +19,13 @@ export const AuthProvider = ({ children }) => {
       try {
         const token = localStorage.getItem("token");
         if (token) {
-          // Comment out the API call
-          /*
           const config = {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
-          const res = await axios.get("/api/auth/me", config)
-          setUser(res.data)
-          */
-
-          // Instead, use mock data or retrieve from localStorage
-          const userData = JSON.parse(localStorage.getItem("userData")) || {
-            _id: "user123",
-            name: "Demo User 3",
-            email: "demo@example.com",
-            phone: "1234567890",
-            role: "seller",
-            favorites: [],
-            createdAt: new Date().toISOString(),
           };
-          setUser(userData);
+          const res = await axios.get(`${API_URL}/api/auth/me`, config);
+          setUser(res.data);
         }
       } catch (err) {
         localStorage.removeItem("token");
@@ -55,17 +42,8 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       setError(null);
-      // Comment out the API call
-      /*
-      const res = await axios.post("/api/auth/register", userData)
-      return res.data
-      */
-
-      // Instead, return mock data
-      const mockResponse = {
-        message: "Registration successful. Please verify OTP.",
-      };
-      return mockResponse;
+      const res = await axios.post(`${API_URL}/api/auth/register`, userData);
+      return res.data;
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
       throw err;
@@ -76,33 +54,10 @@ export const AuthProvider = ({ children }) => {
   const verifyOTP = async (phone, otp) => {
     try {
       setError(null);
-      // Comment out the API call
-      /*
-      const res = await axios.post("/api/auth/verify-otp", { phone, otp })
-      localStorage.setItem("token", res.data.token)
-      setUser(res.data.user)
-      return res.data
-      */
-
-      // Instead, use mock data
-      // Assuming userData is available from the registration process or elsewhere
-      const userData =
-        JSON.parse(localStorage.getItem("registrationData")) || {}; // Retrieve or initialize userData
-      const mockUser = {
-        _id: "user123",
-        name: userData.name || "Demo User 2",
-        email: userData.email || "demo@example.com",
-        phone: phone,
-        role: userData.role || "seller",
-        favorites: [],
-        createdAt: new Date().toISOString(),
-      };
-
-      localStorage.setItem("token", "mock-token-123");
-      localStorage.setItem("userData", JSON.stringify(mockUser));
-      setUser(mockUser);
-
-      return { token: "mock-token-123", user: mockUser };
+      const res = await axios.post(`${API_URL}/api/auth/verify-otp`, { phone, otp });
+      localStorage.setItem("token", res.data.token);
+      setUser(res.data.user);
+      return res.data;
     } catch (err) {
       setError(err.response?.data?.message || "OTP verification failed");
       throw err;
@@ -113,30 +68,11 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setError(null);
-      // Comment out the API call
-      /*
-      const res = await axios.post("/api/auth/login", { email, password })
-      localStorage.setItem("token", res.data.token)
-      setUser(res.data.user)
-      return res.data
-      */
-
-      // Instead, use mock data
-      const mockUser = {
-        _id: "user123",
-        name: "Demo User 1",
-        email: email,
-        phone: "1234567890",
-        role: "admin",
-        favorites: [],
-        createdAt: new Date().toISOString(),
-      };
-
-      localStorage.setItem("token", "mock-token-123");
-      localStorage.setItem("userData", JSON.stringify(mockUser));
-      setUser(mockUser);
-
-      return { token: "mock-token-123", user: mockUser };
+      const res = await axios.post(`${API_URL}/api/auth/login`, { email, password });
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("userData", JSON.stringify(res.data.user));
+      setUser(res.data.user);
+      return res.data;
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
       throw err;
@@ -154,24 +90,15 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (userData) => {
     try {
       setError(null);
-      // Comment out the API call
-      /*
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
-      const res = await axios.put("/api/auth/update-profile", userData, config)
-      setUser(res.data)
-      return res.data
-      */
-
-      // Instead, update the user in state and localStorage
-      const updatedUser = { ...user, ...userData };
-      localStorage.setItem("userData", JSON.stringify(updatedUser));
-      setUser(updatedUser);
-      return updatedUser;
+      };
+      const res = await axios.put(`${API_URL}/api/auth/update-profile`, userData, config);
+      setUser(res.data);
+      return res.data;
     } catch (err) {
       setError(err.response?.data?.message || "Profile update failed");
       throw err;
@@ -182,19 +109,13 @@ export const AuthProvider = ({ children }) => {
   const changePassword = async (currentPassword, newPassword) => {
     try {
       setError(null);
-      // Comment out the API call
-      /*
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
-      await axios.put("/api/auth/change-password", { currentPassword, newPassword }, config)
-      */
-
-      // Just return success for mock implementation
-      return true;
+      };
+      await axios.put(`${API_URL}/api/auth/change-password`, { currentPassword, newPassword }, config);
     } catch (err) {
       setError(err.response?.data?.message || "Password change failed");
       throw err;
@@ -205,6 +126,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
+        setUser, // <-- Add this line
         loading,
         error,
         register,

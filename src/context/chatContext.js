@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useState, useEffect, useContext } from "react"
+import { createContext, useState, useEffect, useContext, useCallback } from "react"
 import { AuthContext } from "./authContext"
 
 export const ChatContext = createContext()
@@ -98,7 +98,7 @@ export const ChatProvider = ({ children }) => {
   }, [socket, currentChat])
 
   // Get user's chats
-  const getChats = async () => {
+  const getChats = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -185,10 +185,10 @@ export const ChatProvider = ({ children }) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   // Get chat messages
-  const getChatMessages = async (chatId) => {
+  const getChatMessages = useCallback(async (chatId) => {
     try {
       setLoading(true)
       setError(null)
@@ -258,10 +258,10 @@ export const ChatProvider = ({ children }) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   // Start a new chat for a listing
-  const startChat = async (listingId, sellerId) => {
+  const startChat = useCallback(async (listingId, sellerId) => {
     try {
       setLoading(true)
       setError(null)
@@ -323,10 +323,10 @@ export const ChatProvider = ({ children }) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   // Send a message
-  const sendMessage = async (chatId, content) => {
+  const sendMessage = useCallback(async (chatId, content) => {
     try {
       setError(null)
 
@@ -410,7 +410,7 @@ export const ChatProvider = ({ children }) => {
       setError(err.response?.data?.message || "Failed to send message")
       throw err
     }
-  }
+  }, [])
 
   // Add mock listings reference
   const mockListings = [
