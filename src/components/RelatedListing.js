@@ -1,39 +1,43 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useContext } from "react"
-import { ListingContext } from "../context/listingContext"
-import ListingCard from "./ListingCard"
+import { useState, useEffect, useContext } from "react";
+import { ListingContext } from "../context/listingContext";
+import ListingCard from "./ListingCard";
 
 export default function RelatedListings({ currentListingId, category }) {
-  const { getListings } = useContext(ListingContext)
-  const [listings, setListings] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const { getListings } = useContext(ListingContext);
+  const [listings, setListings] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchRelatedListings = async () => {
       try {
-        setIsLoading(true)
-        const result = await getListings({ category, limit: 4 })
-        // Filter out the current listing
-        const filteredListings = result.listings.filter((listing) => listing._id !== currentListingId)
-        setListings(filteredListings.slice(0, 3)) // Show max 3 related listings
+        setIsLoading(true);
+        const result = await getListings({ category, limit: 4 });
+        const filteredListings = result.listings.filter(
+          (listing) => listing._id !== currentListingId
+        );
+        setListings(filteredListings.slice(0, 3));
       } catch (error) {
-        console.error("Error fetching related listings:", error)
+        console.error("Error fetching related listings:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
     if (category) {
-      fetchRelatedListings()
+      fetchRelatedListings();
     }
-  }, [category, currentListingId, getListings])
+  }, [category, currentListingId]); // removed getListings
 
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {[...Array(3)].map((_, index) => (
-          <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+          <div
+            key={index}
+            className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse"
+          >
             <div className="h-48 bg-gray-300"></div>
             <div className="p-4">
               <div className="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
@@ -43,7 +47,7 @@ export default function RelatedListings({ currentListingId, category }) {
           </div>
         ))}
       </div>
-    )
+    );
   }
 
   if (listings.length === 0) {
@@ -51,7 +55,7 @@ export default function RelatedListings({ currentListingId, category }) {
       <div className="text-center py-8">
         <p className="text-gray-600">No similar listings found.</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -60,5 +64,5 @@ export default function RelatedListings({ currentListingId, category }) {
         <ListingCard key={listing._id} listing={listing} />
       ))}
     </div>
-  )
+  );
 }

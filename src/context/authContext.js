@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import { createContext, useState, useEffect } from "react"
-import { useRouter } from "next/router"
+import { createContext, useState, useEffect } from "react";
+import { useRouter } from "next/router";
 
-export const AuthContext = createContext()
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const router = useRouter()
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const router = useRouter();
 
   // Check if user is logged in on initial load
   useEffect(() => {
     const checkLoggedIn = async () => {
       try {
-        const token = localStorage.getItem("token")
+        const token = localStorage.getItem("token");
         if (token) {
           // Comment out the API call
           /*
@@ -31,30 +31,30 @@ export const AuthProvider = ({ children }) => {
           // Instead, use mock data or retrieve from localStorage
           const userData = JSON.parse(localStorage.getItem("userData")) || {
             _id: "user123",
-            name: "Demo User",
+            name: "Demo User 3",
             email: "demo@example.com",
             phone: "1234567890",
-            role: "buyer",
+            role: "seller",
             favorites: [],
             createdAt: new Date().toISOString(),
-          }
-          setUser(userData)
+          };
+          setUser(userData);
         }
       } catch (err) {
-        localStorage.removeItem("token")
-        setUser(null)
+        localStorage.removeItem("token");
+        setUser(null);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    checkLoggedIn()
-  }, [])
+    checkLoggedIn();
+  }, []);
 
   // Register user
   const register = async (userData) => {
     try {
-      setError(null)
+      setError(null);
       // Comment out the API call
       /*
       const res = await axios.post("/api/auth/register", userData)
@@ -64,18 +64,18 @@ export const AuthProvider = ({ children }) => {
       // Instead, return mock data
       const mockResponse = {
         message: "Registration successful. Please verify OTP.",
-      }
-      return mockResponse
+      };
+      return mockResponse;
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed")
-      throw err
+      setError(err.response?.data?.message || "Registration failed");
+      throw err;
     }
-  }
+  };
 
   // Verify OTP
   const verifyOTP = async (phone, otp) => {
     try {
-      setError(null)
+      setError(null);
       // Comment out the API call
       /*
       const res = await axios.post("/api/auth/verify-otp", { phone, otp })
@@ -86,32 +86,33 @@ export const AuthProvider = ({ children }) => {
 
       // Instead, use mock data
       // Assuming userData is available from the registration process or elsewhere
-      const userData = JSON.parse(localStorage.getItem("registrationData")) || {} // Retrieve or initialize userData
+      const userData =
+        JSON.parse(localStorage.getItem("registrationData")) || {}; // Retrieve or initialize userData
       const mockUser = {
         _id: "user123",
-        name: userData.name || "Demo User",
+        name: userData.name || "Demo User 2",
         email: userData.email || "demo@example.com",
         phone: phone,
-        role: userData.role || "buyer",
+        role: userData.role || "seller",
         favorites: [],
         createdAt: new Date().toISOString(),
-      }
+      };
 
-      localStorage.setItem("token", "mock-token-123")
-      localStorage.setItem("userData", JSON.stringify(mockUser))
-      setUser(mockUser)
+      localStorage.setItem("token", "mock-token-123");
+      localStorage.setItem("userData", JSON.stringify(mockUser));
+      setUser(mockUser);
 
-      return { token: "mock-token-123", user: mockUser }
+      return { token: "mock-token-123", user: mockUser };
     } catch (err) {
-      setError(err.response?.data?.message || "OTP verification failed")
-      throw err
+      setError(err.response?.data?.message || "OTP verification failed");
+      throw err;
     }
-  }
+  };
 
   // Login user
   const login = async (email, password) => {
     try {
-      setError(null)
+      setError(null);
       // Comment out the API call
       /*
       const res = await axios.post("/api/auth/login", { email, password })
@@ -123,36 +124,36 @@ export const AuthProvider = ({ children }) => {
       // Instead, use mock data
       const mockUser = {
         _id: "user123",
-        name: "Demo User",
+        name: "Demo User 1",
         email: email,
         phone: "1234567890",
-        role: "buyer",
+        role: "admin",
         favorites: [],
         createdAt: new Date().toISOString(),
-      }
+      };
 
-      localStorage.setItem("token", "mock-token-123")
-      localStorage.setItem("userData", JSON.stringify(mockUser))
-      setUser(mockUser)
+      localStorage.setItem("token", "mock-token-123");
+      localStorage.setItem("userData", JSON.stringify(mockUser));
+      setUser(mockUser);
 
-      return { token: "mock-token-123", user: mockUser }
+      return { token: "mock-token-123", user: mockUser };
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed")
-      throw err
+      setError(err.response?.data?.message || "Login failed");
+      throw err;
     }
-  }
+  };
 
   // Logout user
   const logout = () => {
-    localStorage.removeItem("token")
-    setUser(null)
-    router.push("/")
-  }
+    localStorage.removeItem("token");
+    setUser(null);
+    router.push("/");
+  };
 
   // Update user profile
   const updateProfile = async (userData) => {
     try {
-      setError(null)
+      setError(null);
       // Comment out the API call
       /*
       const token = localStorage.getItem("token")
@@ -167,20 +168,20 @@ export const AuthProvider = ({ children }) => {
       */
 
       // Instead, update the user in state and localStorage
-      const updatedUser = { ...user, ...userData }
-      localStorage.setItem("userData", JSON.stringify(updatedUser))
-      setUser(updatedUser)
-      return updatedUser
+      const updatedUser = { ...user, ...userData };
+      localStorage.setItem("userData", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      return updatedUser;
     } catch (err) {
-      setError(err.response?.data?.message || "Profile update failed")
-      throw err
+      setError(err.response?.data?.message || "Profile update failed");
+      throw err;
     }
-  }
+  };
 
   // Change password
   const changePassword = async (currentPassword, newPassword) => {
     try {
-      setError(null)
+      setError(null);
       // Comment out the API call
       /*
       const token = localStorage.getItem("token")
@@ -193,12 +194,12 @@ export const AuthProvider = ({ children }) => {
       */
 
       // Just return success for mock implementation
-      return true
+      return true;
     } catch (err) {
-      setError(err.response?.data?.message || "Password change failed")
-      throw err
+      setError(err.response?.data?.message || "Password change failed");
+      throw err;
     }
-  }
+  };
 
   return (
     <AuthContext.Provider
@@ -216,5 +217,5 @@ export const AuthProvider = ({ children }) => {
     >
       {children}
     </AuthContext.Provider>
-  )
-}
+  );
+};

@@ -1,13 +1,14 @@
-"use client"
+"use client";
 
-import { createContext, useState } from "react"
+import { createContext, useState } from "react";
 
 // Add mock listings data at the top of the file
 const mockListings = [
   {
     _id: "1",
     title: "Healthy Bakra for Qurbani",
-    description: "A healthy and strong goat perfect for Qurbani. Well-fed and vaccinated.",
+    description:
+      "A healthy and strong goat perfect for Qurbani. Well-fed and vaccinated.",
     price: 45000,
     category: "goat",
     location: "Karachi",
@@ -26,7 +27,8 @@ const mockListings = [
   {
     _id: "2",
     title: "Premium Cow for Eid",
-    description: "A premium quality cow raised on our farm. Perfect for Qurbani.",
+    description:
+      "A premium quality cow raised on our farm. Perfect for Qurbani.",
     price: 120000,
     category: "cow",
     location: "Lahore",
@@ -45,7 +47,8 @@ const mockListings = [
   {
     _id: "3",
     title: "Young Healthy Camel",
-    description: "A young and healthy camel available for Qurbani. Well-maintained and cared for.",
+    description:
+      "A young and healthy camel available for Qurbani. Well-maintained and cared for.",
     price: 180000,
     category: "camel",
     location: "Islamabad",
@@ -64,7 +67,8 @@ const mockListings = [
   {
     _id: "4",
     title: "Pair of Sheep for Qurbani",
-    description: "A pair of healthy sheep available for Qurbani. Both are well-fed and vaccinated.",
+    description:
+      "A pair of healthy sheep available for Qurbani. Both are well-fed and vaccinated.",
     price: 60000,
     category: "sheep",
     location: "Peshawar",
@@ -83,7 +87,8 @@ const mockListings = [
   {
     _id: "5",
     title: "Healthy Buffalo for Qurbani",
-    description: "A strong and healthy buffalo perfect for Qurbani. Farm-raised and well-cared for.",
+    description:
+      "A strong and healthy buffalo perfect for Qurbani. Farm-raised and well-cared for.",
     price: 150000,
     category: "buffalo",
     location: "Multan",
@@ -102,7 +107,8 @@ const mockListings = [
   {
     _id: "6",
     title: "Premium Quality Goat",
-    description: "A premium quality goat with excellent features. Perfect for Qurbani.",
+    description:
+      "A premium quality goat with excellent features. Perfect for Qurbani.",
     price: 55000,
     category: "goat",
     location: "Faisalabad",
@@ -118,20 +124,20 @@ const mockListings = [
     },
     createdAt: "2023-05-10T08:30:00Z",
   },
-]
+];
 
-export const ListingContext = createContext()
+export const ListingContext = createContext();
 
 export const ListingProvider = ({ children }) => {
-  const [listings, setListings] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Get all listings with filters
   const getListings = async (filters = {}) => {
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       // Comment out the API call
       /*
@@ -147,57 +153,69 @@ export const ListingProvider = ({ children }) => {
 
       // Instead, return mock data
       // Filter the mock data based on the filters
-      let filteredListings = mockListings
+      let filteredListings = mockListings;
 
       if (filters.category) {
-        filteredListings = filteredListings.filter((listing) => listing.category === filters.category)
+        filteredListings = filteredListings.filter(
+          (listing) => listing.category === filters.category
+        );
       }
 
       if (filters.minPrice) {
-        filteredListings = filteredListings.filter((listing) => listing.price >= Number(filters.minPrice))
+        filteredListings = filteredListings.filter(
+          (listing) => listing.price >= Number(filters.minPrice)
+        );
       }
 
       if (filters.maxPrice) {
-        filteredListings = filteredListings.filter((listing) => listing.price <= Number(filters.maxPrice))
+        filteredListings = filteredListings.filter(
+          (listing) => listing.price <= Number(filters.maxPrice)
+        );
       }
 
       if (filters.location) {
-        filteredListings = filteredListings.filter((listing) => listing.location === filters.location)
+        filteredListings = filteredListings.filter(
+          (listing) => listing.location === filters.location
+        );
       }
 
       // Sort the listings
       if (filters.sort) {
         switch (filters.sort) {
           case "newest":
-            filteredListings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-            break
+            filteredListings.sort(
+              (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+            );
+            break;
           case "oldest":
-            filteredListings.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-            break
+            filteredListings.sort(
+              (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+            );
+            break;
           case "price_low":
-            filteredListings.sort((a, b) => a.price - b.price)
-            break
+            filteredListings.sort((a, b) => a.price - b.price);
+            break;
           case "price_high":
-            filteredListings.sort((a, b) => b.price - a.price)
-            break
+            filteredListings.sort((a, b) => b.price - a.price);
+            break;
         }
       }
 
-      setListings(filteredListings)
-      return { listings: filteredListings, total: filteredListings.length }
+      setListings(filteredListings);
+      return { listings: filteredListings, total: filteredListings.length };
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch listings")
-      throw err
+      setError(err.response?.data?.message || "Failed to fetch listings");
+      throw err;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Get featured listings
   const getFeaturedListings = async () => {
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
       // Comment out the API call
       /*
       const res = await axios.get("/api/listings/featured")
@@ -205,21 +223,23 @@ export const ListingProvider = ({ children }) => {
       */
 
       // Instead, return mock featured listings
-      const featuredListings = mockListings.slice(0, 6)
-      return featuredListings
+      const featuredListings = mockListings.slice(0, 6);
+      return featuredListings;
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch featured listings")
-      throw err
+      setError(
+        err.response?.data?.message || "Failed to fetch featured listings"
+      );
+      throw err;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Get single listing
   const getListing = async (id) => {
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
       // Comment out the API call
       /*
       const res = await axios.get(`/api/listings/${id}`)
@@ -227,21 +247,21 @@ export const ListingProvider = ({ children }) => {
       */
 
       // Instead, find the listing in mock data
-      const listing = mockListings.find((listing) => listing._id === id)
-      return listing || null
+      const listing = mockListings.find((listing) => listing._id === id);
+      return listing || null;
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch listing")
-      throw err
+      setError(err.response?.data?.message || "Failed to fetch listing");
+      throw err;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Create new listing
   const createListing = async (listingData) => {
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       // Comment out the API call
       /*
@@ -266,7 +286,9 @@ export const ListingProvider = ({ children }) => {
         price: Number(listingData.get("price")),
         location: listingData.get("location"),
         age: listingData.get("age") ? Number(listingData.get("age")) : null,
-        weight: listingData.get("weight") ? Number(listingData.get("weight")) : null,
+        weight: listingData.get("weight")
+          ? Number(listingData.get("weight"))
+          : null,
         features: JSON.parse(listingData.get("features") || "[]"),
         images: ["/placeholder.svg"],
         seller: {
@@ -274,72 +296,75 @@ export const ListingProvider = ({ children }) => {
           name: "Demo User",
         },
         createdAt: new Date().toISOString(),
-      }
+      };
 
       // Add to mock listings
-      mockListings.unshift(newListing)
+      mockListings.unshift(newListing);
 
-      return newListing
+      return newListing;
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to create listing")
-      throw err
+      setError(err.response?.data?.message || "Failed to create listing");
+      throw err;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
+  // Update listing
   // Update listing
   const updateListing = async (id, listingData) => {
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
-      // Comment out the API call
+      // Commented out real API call
       /*
-      const token = localStorage.getItem("token")
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      }
+    const token = localStorage.getItem("token")
+    const config = {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
+    }
 
-      const res = await axios.put(`/api/listings/${id}`, listingData, config)
-      return res.data
-      */
+    const res = await axios.put(`/api/listings/${id}`, listingData, config)
+    return res.data
+    */
 
       // Instead, update the mock listing
-      const index = mockListings.findIndex((listing) => listing._id === id)
+      const index = mockListings.findIndex((listing) => listing._id === id);
       if (index !== -1) {
         mockListings[index] = {
           ...mockListings[index],
-          title: listingData.get("title") || mockListings[index].title,
-          description: listingData.get("description") || mockListings[index].description,
-          category: listingData.get("category") || mockListings[index].category,
-          price: listingData.get("price") ? Number(listingData.get("price")) : mockListings[index].price,
-          location: listingData.get("location") || mockListings[index].location,
-          age: listingData.get("age") ? Number(listingData.get("age")) : mockListings[index].age,
-          weight: listingData.get("weight") ? Number(listingData.get("weight")) : mockListings[index].weight,
-          features: listingData.get("features")
-            ? JSON.parse(listingData.get("features"))
-            : mockListings[index].features,
-        }
-        return mockListings[index]
+          title: listingData.get("title"),
+          description: listingData.get("description"),
+          category: listingData.get("category"),
+          price: Number(listingData.get("price")),
+          location: listingData.get("location"),
+          age: listingData.get("age") ? Number(listingData.get("age")) : null,
+          weight: listingData.get("weight")
+            ? Number(listingData.get("weight"))
+            : null,
+          features: JSON.parse(listingData.get("features") || "[]"),
+          updatedAt: new Date().toISOString(),
+        };
+        return mockListings[index];
+      } else {
+        throw new Error("Listing not found");
       }
-      throw new Error("Listing not found")
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to update listing")
-      throw err
+      setError(err.response?.data?.message || "Failed to update listing");
+      throw err;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Delete listing
   const deleteListing = async (id) => {
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       // Comment out the API call
       /*
@@ -354,24 +379,24 @@ export const ListingProvider = ({ children }) => {
       */
 
       // Instead, remove from mock listings
-      const index = mockListings.findIndex((listing) => listing._id === id)
+      const index = mockListings.findIndex((listing) => listing._id === id);
       if (index !== -1) {
-        mockListings.splice(index, 1)
+        mockListings.splice(index, 1);
       }
 
-      return true
+      return true;
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to delete listing")
-      throw err
+      setError(err.response?.data?.message || "Failed to delete listing");
+      throw err;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Toggle favorite listing
   const toggleFavorite = async (listingId) => {
     try {
-      setError(null)
+      setError(null);
 
       // Comment out the API call
       /*
@@ -387,34 +412,36 @@ export const ListingProvider = ({ children }) => {
       */
 
       // Instead, toggle favorite in local state
-      const userData = JSON.parse(localStorage.getItem("userData")) || { favorites: [] }
+      const userData = JSON.parse(localStorage.getItem("userData")) || {
+        favorites: [],
+      };
 
       if (!userData.favorites) {
-        userData.favorites = []
+        userData.favorites = [];
       }
 
-      const index = userData.favorites.indexOf(listingId)
+      const index = userData.favorites.indexOf(listingId);
       if (index === -1) {
-        userData.favorites.push(listingId)
+        userData.favorites.push(listingId);
       } else {
-        userData.favorites.splice(index, 1)
+        userData.favorites.splice(index, 1);
       }
 
-      localStorage.setItem("userData", JSON.stringify(userData))
+      localStorage.setItem("userData", JSON.stringify(userData));
 
       // Update user in auth context if possible
-      return { success: true }
+      return { success: true };
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to toggle favorite")
-      throw err
+      setError(err.response?.data?.message || "Failed to toggle favorite");
+      throw err;
     }
-  }
+  };
 
   // Get user's listings
   const getUserListings = async () => {
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       // Comment out the API call
       /*
@@ -430,25 +457,27 @@ export const ListingProvider = ({ children }) => {
       */
 
       // Instead, filter mock listings for the current user
-      const userData = JSON.parse(localStorage.getItem("userData"))
+      const userData = JSON.parse(localStorage.getItem("userData"));
       if (userData && userData._id) {
-        const userListings = mockListings.filter((listing) => listing.seller && listing.seller._id === userData._id)
-        return userListings
+        const userListings = mockListings.filter(
+          (listing) => listing.seller && listing.seller._id === userData._id
+        );
+        return userListings;
       }
-      return []
+      return [];
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch user listings")
-      throw err
+      setError(err.response?.data?.message || "Failed to fetch user listings");
+      throw err;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Get user's favorite listings
   const getFavoriteListings = async () => {
     try {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       // Comment out the API call
       /*
@@ -464,19 +493,23 @@ export const ListingProvider = ({ children }) => {
       */
 
       // Instead, filter mock listings based on user favorites
-      const userData = JSON.parse(localStorage.getItem("userData"))
+      const userData = JSON.parse(localStorage.getItem("userData"));
       if (userData && userData.favorites && userData.favorites.length > 0) {
-        const favoriteListings = mockListings.filter((listing) => userData.favorites.includes(listing._id))
-        return favoriteListings
+        const favoriteListings = mockListings.filter((listing) =>
+          userData.favorites.includes(listing._id)
+        );
+        return favoriteListings;
       }
-      return []
+      return [];
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch favorite listings")
-      throw err
+      setError(
+        err.response?.data?.message || "Failed to fetch favorite listings"
+      );
+      throw err;
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <ListingContext.Provider
@@ -497,5 +530,5 @@ export const ListingProvider = ({ children }) => {
     >
       {children}
     </ListingContext.Provider>
-  )
-}
+  );
+};

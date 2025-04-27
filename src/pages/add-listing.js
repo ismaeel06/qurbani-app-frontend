@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useState, useContext, useEffect } from "react"
-import { useRouter } from "next/router"
-import Head from "next/head"
-import { Upload, X, Plus } from "react-feather"
-import { ListingContext } from "../context/listingContext"
-import { AuthContext } from "../context/authContext"
+import { useState, useContext, useEffect } from "react";
+import { useRouter } from "next/router";
+import Head from "next/head";
+import { Upload, X, Plus } from "react-feather";
+import { ListingContext } from "../context/listingContext";
+import { AuthContext } from "../context/authContext";
 
 const categories = [
   { id: "cow", name: "Cow" },
@@ -13,7 +13,7 @@ const categories = [
   { id: "sheep", name: "Sheep" },
   { id: "camel", name: "Camel" },
   { id: "buffalo", name: "Buffalo" },
-]
+];
 
 const locations = [
   "Karachi",
@@ -25,12 +25,12 @@ const locations = [
   "Faisalabad",
   "Rawalpindi",
   "Hyderabad",
-]
+];
 
 export default function AddListing() {
-  const { createListing } = useContext(ListingContext)
-  const { user } = useContext(AuthContext)
-  const router = useRouter()
+  const { createListing } = useContext(ListingContext);
+  const { user } = useContext(AuthContext);
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -41,172 +41,182 @@ export default function AddListing() {
     age: "",
     weight: "",
     features: [""],
-  })
+  });
 
-  const [images, setImages] = useState([])
-  const [imagePreviewUrls, setImagePreviewUrls] = useState([])
-  const [errors, setErrors] = useState({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState("")
+  const [images, setImages] = useState([]);
+  const [imagePreviewUrls, setImagePreviewUrls] = useState([]);
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   // Redirect if not logged in or not a seller
   useEffect(() => {
     if (user) {
       if (user.role !== "seller" && user.role !== "admin") {
-        router.push("/")
+        console.log(user);
+        console.log("awdnawiundawudn");
+        router.push("/login");
       }
     } else {
-      router.push("/login")
+      console.log("test2");
+      router.push("/add-listing");
     }
-  }, [user, router])
+  }, [user, router]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
 
     // Clear error when field is edited
     if (errors[name]) {
-      setErrors({ ...errors, [name]: "" })
+      setErrors({ ...errors, [name]: "" });
     }
-  }
+  };
 
   const handleFeatureChange = (index, value) => {
-    const updatedFeatures = [...formData.features]
-    updatedFeatures[index] = value
-    setFormData({ ...formData, features: updatedFeatures })
-  }
+    const updatedFeatures = [...formData.features];
+    updatedFeatures[index] = value;
+    setFormData({ ...formData, features: updatedFeatures });
+  };
 
   const addFeatureField = () => {
-    setFormData({ ...formData, features: [...formData.features, ""] })
-  }
+    setFormData({ ...formData, features: [...formData.features, ""] });
+  };
 
   const removeFeatureField = (index) => {
-    const updatedFeatures = [...formData.features]
-    updatedFeatures.splice(index, 1)
-    setFormData({ ...formData, features: updatedFeatures })
-  }
+    const updatedFeatures = [...formData.features];
+    updatedFeatures.splice(index, 1);
+    setFormData({ ...formData, features: updatedFeatures });
+  };
 
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files)
+    const files = Array.from(e.target.files);
 
-    if (files.length === 0) return
+    if (files.length === 0) return;
 
     // Limit to 5 images
     if (images.length + files.length > 5) {
-      setErrors({ ...errors, images: "Maximum 5 images allowed" })
-      return
+      setErrors({ ...errors, images: "Maximum 5 images allowed" });
+      return;
     }
 
     // Check file types and sizes
     const validFiles = files.filter((file) => {
-      const isValidType = file.type.startsWith("image/")
-      const isValidSize = file.size <= 5 * 1024 * 1024 // 5MB
+      const isValidType = file.type.startsWith("image/");
+      const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB
 
       if (!isValidType) {
-        setErrors({ ...errors, images: "Only image files are allowed" })
+        setErrors({ ...errors, images: "Only image files are allowed" });
       } else if (!isValidSize) {
-        setErrors({ ...errors, images: "Image size should be less than 5MB" })
+        setErrors({ ...errors, images: "Image size should be less than 5MB" });
       }
 
-      return isValidType && isValidSize
-    })
+      return isValidType && isValidSize;
+    });
 
-    if (validFiles.length === 0) return
+    if (validFiles.length === 0) return;
 
-    setImages([...images, ...validFiles])
+    setImages([...images, ...validFiles]);
 
     // Create preview URLs
-    const newPreviewUrls = validFiles.map((file) => URL.createObjectURL(file))
-    setImagePreviewUrls([...imagePreviewUrls, ...newPreviewUrls])
+    const newPreviewUrls = validFiles.map((file) => URL.createObjectURL(file));
+    setImagePreviewUrls([...imagePreviewUrls, ...newPreviewUrls]);
 
     // Clear image error if it exists
     if (errors.images) {
-      setErrors({ ...errors, images: "" })
+      setErrors({ ...errors, images: "" });
     }
-  }
+  };
 
   const removeImage = (index) => {
-    const updatedImages = [...images]
-    const updatedPreviewUrls = [...imagePreviewUrls]
+    const updatedImages = [...images];
+    const updatedPreviewUrls = [...imagePreviewUrls];
 
     // Revoke object URL to avoid memory leaks
-    URL.revokeObjectURL(updatedPreviewUrls[index])
+    URL.revokeObjectURL(updatedPreviewUrls[index]);
 
-    updatedImages.splice(index, 1)
-    updatedPreviewUrls.splice(index, 1)
+    updatedImages.splice(index, 1);
+    updatedPreviewUrls.splice(index, 1);
 
-    setImages(updatedImages)
-    setImagePreviewUrls(updatedPreviewUrls)
-  }
+    setImages(updatedImages);
+    setImagePreviewUrls(updatedPreviewUrls);
+  };
 
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors = {};
 
-    if (!formData.title.trim()) newErrors.title = "Title is required"
-    if (!formData.description.trim()) newErrors.description = "Description is required"
-    if (!formData.price) newErrors.price = "Price is required"
+    if (!formData.title.trim()) newErrors.title = "Title is required";
+    if (!formData.description.trim())
+      newErrors.description = "Description is required";
+    if (!formData.price) newErrors.price = "Price is required";
     if (isNaN(formData.price) || Number(formData.price) <= 0) {
-      newErrors.price = "Price must be a positive number"
+      newErrors.price = "Price must be a positive number";
     }
-    if (!formData.location) newErrors.location = "Location is required"
+    if (!formData.location) newErrors.location = "Location is required";
 
     if (images.length === 0) {
-      newErrors.images = "At least one image is required"
+      newErrors.images = "At least one image is required";
     }
 
     // Filter out empty features
-    const nonEmptyFeatures = formData.features.filter((feature) => feature.trim() !== "")
-    setFormData({ ...formData, features: nonEmptyFeatures })
+    const nonEmptyFeatures = formData.features.filter(
+      (feature) => feature.trim() !== ""
+    );
+    setFormData({ ...formData, features: nonEmptyFeatures });
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!validateForm()) return
+    if (!validateForm()) return;
 
-    setIsSubmitting(true)
-    setSubmitError("")
+    setIsSubmitting(true);
+    setSubmitError("");
 
     try {
       // Create FormData object for file upload
-      const listingFormData = new FormData()
+      const listingFormData = new FormData();
 
       // Append text fields
-      listingFormData.append("title", formData.title)
-      listingFormData.append("description", formData.description)
-      listingFormData.append("category", formData.category)
-      listingFormData.append("price", formData.price)
-      listingFormData.append("location", formData.location)
+      listingFormData.append("title", formData.title);
+      listingFormData.append("description", formData.description);
+      listingFormData.append("category", formData.category);
+      listingFormData.append("price", formData.price);
+      listingFormData.append("location", formData.location);
 
-      if (formData.age) listingFormData.append("age", formData.age)
-      if (formData.weight) listingFormData.append("weight", formData.weight)
+      if (formData.age) listingFormData.append("age", formData.age);
+      if (formData.weight) listingFormData.append("weight", formData.weight);
 
       // Append features as JSON string
-      const nonEmptyFeatures = formData.features.filter((feature) => feature.trim() !== "")
-      listingFormData.append("features", JSON.stringify(nonEmptyFeatures))
+      const nonEmptyFeatures = formData.features.filter(
+        (feature) => feature.trim() !== ""
+      );
+      listingFormData.append("features", JSON.stringify(nonEmptyFeatures));
 
       // Append images
       images.forEach((image) => {
-        listingFormData.append("images", image)
-      })
+        listingFormData.append("images", image);
+      });
 
-      const result = await createListing(listingFormData)
+      const result = await createListing(listingFormData);
 
       // Redirect to the new listing page
-      router.push(`/listing/${result._id}`)
+      router.push(`/listing/${result._id}`);
     } catch (error) {
-      console.error("Error creating listing:", error)
-      setSubmitError(error.message || "Failed to create listing. Please try again.")
+      console.error("Error creating listing:", error);
+      setSubmitError(
+        error.message || "Failed to create listing. Please try again."
+      );
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   if (!user || (user.role !== "seller" && user.role !== "admin")) {
-    return null // Will redirect in useEffect
+    return null; // Will redirect in useEffect
   }
 
   return (
@@ -229,13 +239,21 @@ export default function AddListing() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6">
+            <form
+              onSubmit={handleSubmit}
+              className="bg-white rounded-lg shadow-md p-6"
+            >
               {/* Basic Information */}
               <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-4">Basic Information</h2>
+                <h2 className="text-lg font-semibold mb-4">
+                  Basic Information
+                </h2>
 
                 <div className="mb-4">
-                  <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="title"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Title <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -249,11 +267,16 @@ export default function AddListing() {
                     } rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
                     placeholder="e.g., Healthy Bakra for Qurbani"
                   />
-                  {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
+                  {errors.title && (
+                    <p className="mt-1 text-sm text-red-600">{errors.title}</p>
+                  )}
                 </div>
 
                 <div className="mb-4">
-                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="description"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Description <span className="text-red-500">*</span>
                   </label>
                   <textarea
@@ -267,12 +290,19 @@ export default function AddListing() {
                     } rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
                     placeholder="Provide detailed information about your animal..."
                   ></textarea>
-                  {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
+                  {errors.description && (
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.description}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="category"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Category <span className="text-red-500">*</span>
                     </label>
                     <select
@@ -291,7 +321,10 @@ export default function AddListing() {
                   </div>
 
                   <div>
-                    <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="price"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Price (Rs.) <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -305,18 +338,27 @@ export default function AddListing() {
                       } rounded-md focus:outline-none focus:ring-2 focus:ring-green-500`}
                       placeholder="e.g., 50000"
                     />
-                    {errors.price && <p className="mt-1 text-sm text-red-600">{errors.price}</p>}
+                    {errors.price && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.price}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Additional Details */}
               <div className="mb-8">
-                <h2 className="text-lg font-semibold mb-4">Additional Details</h2>
+                <h2 className="text-lg font-semibold mb-4">
+                  Additional Details
+                </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="location"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Location <span className="text-red-500">*</span>
                     </label>
                     <select
@@ -335,11 +377,18 @@ export default function AddListing() {
                         </option>
                       ))}
                     </select>
-                    {errors.location && <p className="mt-1 text-sm text-red-600">{errors.location}</p>}
+                    {errors.location && (
+                      <p className="mt-1 text-sm text-red-600">
+                        {errors.location}
+                      </p>
+                    )}
                   </div>
 
                   <div>
-                    <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label
+                      htmlFor="age"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
                       Age (years)
                     </label>
                     <input
@@ -355,7 +404,10 @@ export default function AddListing() {
                 </div>
 
                 <div className="mb-4">
-                  <label htmlFor="weight" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="weight"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Weight (kg)
                   </label>
                   <input
@@ -370,13 +422,17 @@ export default function AddListing() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Features</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Features
+                  </label>
                   {formData.features.map((feature, index) => (
                     <div key={index} className="flex items-center mb-2">
                       <input
                         type="text"
                         value={feature}
-                        onChange={(e) => handleFeatureChange(index, e.target.value)}
+                        onChange={(e) =>
+                          handleFeatureChange(index, e.target.value)
+                        }
                         className="flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                         placeholder="e.g., Healthy, Vaccinated, etc."
                       />
@@ -407,7 +463,8 @@ export default function AddListing() {
                   Images <span className="text-red-500">*</span>
                 </h2>
                 <p className="text-sm text-gray-600 mb-2">
-                  Upload up to 5 images of your animal. First image will be the main image.
+                  Upload up to 5 images of your animal. First image will be the
+                  main image.
                 </p>
 
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
@@ -450,7 +507,9 @@ export default function AddListing() {
                           className="flex flex-col items-center justify-center w-full h-24 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50"
                         >
                           <Upload size={24} className="text-gray-400 mb-1" />
-                          <span className="text-sm text-gray-500">Add More</span>
+                          <span className="text-sm text-gray-500">
+                            Add More
+                          </span>
                         </label>
                       )}
                     </div>
@@ -460,12 +519,18 @@ export default function AddListing() {
                       className="flex flex-col items-center justify-center py-8 cursor-pointer hover:bg-gray-50"
                     >
                       <Upload size={36} className="text-gray-400 mb-2" />
-                      <span className="text-gray-600">Click to upload images</span>
-                      <span className="text-sm text-gray-500 mt-1">PNG, JPG, JPEG up to 5MB</span>
+                      <span className="text-gray-600">
+                        Click to upload images
+                      </span>
+                      <span className="text-sm text-gray-500 mt-1">
+                        PNG, JPG, JPEG up to 5MB
+                      </span>
                     </label>
                   )}
 
-                  {errors.images && <p className="mt-2 text-sm text-red-600">{errors.images}</p>}
+                  {errors.images && (
+                    <p className="mt-2 text-sm text-red-600">{errors.images}</p>
+                  )}
                 </div>
               </div>
 
@@ -510,5 +575,5 @@ export default function AddListing() {
         </div>
       </div>
     </>
-  )
+  );
 }
