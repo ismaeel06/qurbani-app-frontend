@@ -53,12 +53,9 @@ export default function AddListing() {
   useEffect(() => {
     if (user) {
       if (user.role !== "seller" && user.role !== "admin") {
-        console.log(user);
-        console.log("awdnawiundawudn");
         router.push("/login");
       }
     } else {
-      console.log("test2");
       router.push("/add-listing");
     }
   }, [user, router]);

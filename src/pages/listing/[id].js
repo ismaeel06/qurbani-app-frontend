@@ -28,6 +28,7 @@ export default function ListingDetail() {
         try {
           setIsLoading(true)
           const data = await getListing(id)
+          console.log(data)
           setListing(data)
 
           // Check if listing is in user's favorites
@@ -43,7 +44,7 @@ export default function ListingDetail() {
 
       fetchListing()
     }
-  }, [id, getListing, user])
+  }, [id, user]) // removed getListing dependency array
 
   const handleFavoriteToggle = async () => {
     if (!user) {
@@ -185,14 +186,14 @@ export default function ListingDetail() {
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="relative h-96">
-                  <Image
+                  {/* <Image
                     src={listing.images[activeImageIndex] || "/placeholder.svg"}
                     alt={`${listing.title} - Image ${activeImageIndex + 1}`}
                     fill
                     className="object-contain"
-                  />
+                  /> */}
 
-                  {listing.images.length > 1 && (
+                  {/* {listing.images.length > 1 && (
                     <>
                       <button
                         onClick={prevImage}
@@ -207,7 +208,7 @@ export default function ListingDetail() {
                         <ChevronRight size={24} />
                       </button>
                     </>
-                  )}
+                  )} */}
                 </div>
 
                 {/* Thumbnail Gallery */}

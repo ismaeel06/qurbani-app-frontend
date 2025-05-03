@@ -29,7 +29,7 @@ export default function Home() {
     }
 
     loadFeaturedListings()
-  }, [getFeaturedListings])
+  }, []) //REMOVED DEPENDENCY ARRAY getFeaturedlistings
 
   return (
     <>

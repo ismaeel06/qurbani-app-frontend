@@ -35,7 +35,7 @@ export default function Favorites() {
     }
 
     fetchFavorites()
-  }, [user, getFavoriteListings, router])
+  }, [user, router]) // Removed getFavoriteListings from dependency array
 
   if (!user) {
     return null // Will redirect in useEffect

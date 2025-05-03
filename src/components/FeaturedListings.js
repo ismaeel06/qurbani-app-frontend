@@ -57,7 +57,7 @@ export default function FeaturedListings({ listings, isLoading }) {
         <Link key={listing._id} href={`/listing/${listing._id}`}>
           <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-200">
             <div className="relative h-48">
-              <Image src={listing.images[0] || "/placeholder.svg"} alt={listing.title} fill className="object-cover" />
+              {/* <Image src={listing.images[0] || "/placeholder.svg"} alt={listing.title} fill className="object-cover" /> */}
               <button
                 onClick={(e) => handleFavoriteToggle(e, listing._id)}
                 className={`absolute top-2 right-2 p-2 rounded-full ${

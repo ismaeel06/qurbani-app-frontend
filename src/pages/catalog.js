@@ -45,6 +45,8 @@ export default function Catalog() {
         if (filters.sort) apiFilters.sort = filters.sort;
 
         const result = await getListings(apiFilters);
+
+        
         setListings(result.listings);
         setTotalListings(result.total);
       } catch (error) {

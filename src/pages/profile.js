@@ -37,7 +37,7 @@ export default function Profile() {
     }
 
     fetchUserListings()
-  }, [user, getUserListings, router])
+  }, [user, router]) //commneted getUserListings from dependency array
 
   if (!user) {
     return null // Will redirect in useEffect
