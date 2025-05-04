@@ -4,7 +4,7 @@ import { useState, useEffect, useContext } from "react"
 import { useRouter } from "next/router"
 import Head from "next/head"
 import Image from "next/image"
-import { Heart, MessageCircle, Share2, MapPin, Calendar, User, ChevronLeft, ChevronRight } from "react-feather"
+import { Heart, MessageCircle, Share2, MapPin, Edit, Calendar, User, ChevronLeft, ChevronRight } from "react-feather"
 import { ListingContext } from "../../context/listingContext.js"
 import { AuthContext } from "../../context/authContext.js"
 import { ChatContext } from "../../context/chatContext.js"
@@ -16,6 +16,7 @@ export default function ListingDetail() {
   const { getListing, toggleFavorite } = useContext(ListingContext)
   const { user } = useContext(AuthContext)
   const { startChat, setCurrentChat } = useContext(ChatContext)
+  const [isNavigating, setIsNavigating] = useState(false)
 
   const [listing, setListing] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -186,14 +187,14 @@ export default function ListingDetail() {
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="relative h-96">
-                  {/* <Image
+                  {<Image
                     src={listing.images[activeImageIndex] || "/placeholder.svg"}
                     alt={`${listing.title} - Image ${activeImageIndex + 1}`}
                     fill
                     className="object-contain"
-                  /> */}
+                  />}
 
-                  {/* {listing.images.length > 1 && (
+                  {listing.images.length > 1 && (
                     <>
                       <button
                         onClick={prevImage}
@@ -208,7 +209,7 @@ export default function ListingDetail() {
                         <ChevronRight size={24} />
                       </button>
                     </>
-                  )} */}
+                  )}
                 </div>
 
                 {/* Thumbnail Gallery */}
@@ -309,14 +310,38 @@ export default function ListingDetail() {
                   </div>
                 </div>
 
-                <button
-                  onClick={handleContactSeller}
-                  className="w-full py-3 bg-green-600 text-white rounded-lg font-medium flex items-center justify-center hover:bg-green-700 transition-colors"
-                  disabled={user && user._id === listing.seller._id}
-                >
-                  <MessageCircle size={20} className="mr-2" />
-                  {user && user._id === listing.seller._id ? "Your Listing" : "Contact Seller"}
-                </button>
+                {user && user._id === listing.seller._id ? (
+  <button
+  onClick={() => {
+    setIsNavigating(true);
+    // Use shallow routing to reduce page reload
+    router.push(`/edit-listing/${listing._id}`, undefined, { shallow: false });
+  }}
+  className="w-full py-3 bg-green-600 text-white rounded-lg font-medium flex items-center justify-center hover:bg-green-700 transition-colors"
+  disabled={isNavigating}
+>
+  {isNavigating ? (
+    <>
+      <span className="inline-block animate-pulse mr-2">⏳</span>
+      Loading...
+    </>
+  ) : (
+    <>
+      <Edit size={20} className="mr-2" />
+      Edit Listing
+    </>
+  )}
+</button>
+) : (
+  <button
+    onClick={handleContactSeller}
+    className="w-full py-3 bg-green-600 text-white rounded-lg font-medium flex items-center justify-center hover:bg-green-700 transition-colors"
+    disabled={!user}
+  >
+    <MessageCircle size={20} className="mr-2" />
+    {!user ? "Login to Contact" : "Contact Seller"}
+  </button>
+)}
               </div>
 
               {/* Seller Card */}
@@ -348,6 +373,7 @@ export default function ListingDetail() {
                   <span>Listings: {listing.seller.listingCount || 0}</span>
                   <span>Verified Seller</span>
                 </div>
+
 
                 {user && user._id !== listing.seller._id && (
                   <button

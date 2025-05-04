@@ -137,28 +137,69 @@ export const ListingProvider = ({ children }) => {
   };
 
   // Update listing
-  const updateListing = async (id, listingData) => {
-    try {
-      setLoading(true);
-      setError(null);
+const updateListing = async (id, listingData) => {
+  try {
+    setLoading(true);
+    setError(null);
 
-      const token = localStorage.getItem("token");
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      };
-
-      const res = await axios.put(`${API_URL}/api/listings/${id}`, listingData, config);
-      return res.data;
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to update listing");
-      throw err;
-    } finally {
-      setLoading(false);
+    const token = localStorage.getItem("token");
+    
+    // Extract new images from form data
+    const images = listingData.getAll("images") || [];
+    const existingImages = JSON.parse(listingData.get("existingImages") || "[]");
+    
+    // Upload new images to Cloudinary if any
+    const imageUrls = [];
+    
+    for (const image of images) {
+      const formData = new FormData();
+      formData.append("file", image);
+      formData.append("upload_preset", "qurbani_app"); // Your Cloudinary preset
+      
+      const uploadRes = await axios.post(
+        `https://api.cloudinary.com/v1_1/dyq48gxo5/image/upload`,
+        formData
+      );
+      
+      imageUrls.push(uploadRes.data.secure_url);
     }
-  };
+    
+    // Create a new FormData without the images field
+    const updatedListingData = new FormData();
+    
+    // Add all text fields from original form data
+    for (const [key, value] of listingData.entries()) {
+      if (key !== "images" && key !== "existingImages") {
+        updatedListingData.append(key, value);
+      }
+    }
+    
+    // Add image URLs - combine existing and new images
+    updatedListingData.append("imageUrls", JSON.stringify([...existingImages, ...imageUrls]));
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const res = await axios.put(`${API_URL}/api/listings/${id}`, updatedListingData, config);
+    
+    // Update the listing in the state if it exists there
+    setListings(prevListings => 
+      prevListings.map(listing => 
+        listing._id === id ? res.data : listing
+      )
+    );
+    
+    return res.data;
+  } catch (err) {
+    setError(err.response?.data?.message || "Failed to update listing");
+    throw err;
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Delete listing
   const deleteListing = async (id) => {
