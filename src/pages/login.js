@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useState, useContext, useEffect } from "react"
-import { useRouter } from "next/router"
-import Head from "next/head"
-import Link from "next/link"
-import { AuthContext } from "../context/authContext"
+import { useState, useContext, useEffect } from "react";
+import { useRouter } from "next/router";
+import Head from "next/head";
+import Link from "next/link";
+import { AuthContext } from "../context/authContext";
 
 export default function Login() {
-  const [isLogin, setIsLogin] = useState(true)
-  const [showOtpForm, setShowOtpForm] = useState(false)
+  const [isLogin, setIsLogin] = useState(true);
+  const [showOtpForm, setShowOtpForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -17,67 +17,69 @@ export default function Login() {
     confirmPassword: "",
     role: "buyer",
     otp: "",
-  })
-  const [errors, setErrors] = useState({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [registeredPhone, setRegisteredPhone] = useState("")
+  });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [registeredPhone, setRegisteredPhone] = useState("");
 
-  const { login, register, verifyOTP, user, error } = useContext(AuthContext)
-  const router = useRouter()
+  const { login, register, verifyOTP, user, error } = useContext(AuthContext);
+  const router = useRouter();
 
   // Redirect if already logged in
   useEffect(() => {
     if (user) {
-      router.push("/")
+      router.push("/");
     }
-  }, [user, router])
+  }, [user, router]);
 
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors = {};
 
     if (!isLogin) {
-      if (!formData.name.trim()) newErrors.name = "Name is required"
-      if (!formData.phone.trim()) newErrors.phone = "Phone number is required"
-      if (!/^\d{10,11}$/.test(formData.phone)) newErrors.phone = "Enter a valid phone number"
+      if (!formData.name.trim()) newErrors.name = "Name is required";
+      if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
+      if (!/^\d{10,11}$/.test(formData.phone))
+        newErrors.phone = "Enter a valid phone number";
       if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = "Passwords do not match"
+        newErrors.confirmPassword = "Passwords do not match";
       }
     }
 
-    if (!formData.email.trim()) newErrors.email = "Email is required"
-    if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Enter a valid email"
-    if (!formData.password) newErrors.password = "Password is required"
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    if (!/\S+@\S+\.\S+/.test(formData.email))
+      newErrors.email = "Enter a valid email";
+    if (!formData.password) newErrors.password = "Password is required";
     if (!isLogin && formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters"
+      newErrors.password = "Password must be at least 6 characters";
     }
 
     if (showOtpForm && !formData.otp.trim()) {
-      newErrors.otp = "OTP is required"
+      newErrors.otp = "OTP is required";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData({ ...formData, [name]: value })
-  }
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!validateForm()) return
+    if (!validateForm()) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       if (showOtpForm) {
-        await verifyOTP(registeredPhone, formData.otp)
-        router.push("/")
+        await verifyOTP(registeredPhone, formData.otp);
+        router.push("/");
       } else if (isLogin) {
-        await login(formData.email, formData.password)
-        router.push("/")
+        await login(formData.email, formData.password);
+        router.push("/");
       } else {
         const result = await register({
           name: formData.name,
@@ -85,22 +87,22 @@ export default function Login() {
           phone: formData.phone,
           password: formData.password,
           role: formData.role,
-        })
+        });
 
-        setRegisteredPhone(formData.phone)
-        setShowOtpForm(true)
+        setRegisteredPhone(formData.phone);
+        setShowOtpForm(true);
       }
     } catch (err) {
-      console.error("Error:", err)
+      console.error("Error:", err);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const toggleForm = () => {
-    setIsLogin(!isLogin)
-    setShowOtpForm(false)
-    setErrors({})
+    setIsLogin(!isLogin);
+    setShowOtpForm(false);
+    setErrors({});
     setFormData({
       name: "",
       email: "",
@@ -109,8 +111,8 @@ export default function Login() {
       confirmPassword: "",
       role: "buyer",
       otp: "",
-    })
-  }
+    });
+  };
 
   return (
     <>
@@ -122,14 +124,18 @@ export default function Login() {
         <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
           <div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-              {showOtpForm ? "Verify OTP" : isLogin ? "Sign in to your account" : "Create a new account"}
+              {showOtpForm
+                ? "Verify OTP"
+                : isLogin
+                ? "Sign in to your account"
+                : "Create a new account"}
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
               {showOtpForm
                 ? "Enter the OTP sent to your phone"
                 : isLogin
-                  ? "Don't have an account?"
-                  : "Already have an account?"}
+                ? "Don't have an account?"
+                : "Already have an account?"}
               {!showOtpForm && (
                 <button
                   type="button"
@@ -143,7 +149,10 @@ export default function Login() {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <div
+              className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative"
+              role="alert"
+            >
               <span className="block sm:inline">{error}</span>
             </div>
           )}
@@ -168,7 +177,9 @@ export default function Login() {
                     } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm`}
                     placeholder="Enter OTP"
                   />
-                  {errors.otp && <p className="mt-2 text-sm text-red-600">{errors.otp}</p>}
+                  {errors.otp && (
+                    <p className="mt-2 text-sm text-red-600">{errors.otp}</p>
+                  )}
                 </div>
               ) : (
                 <>
@@ -189,7 +200,11 @@ export default function Login() {
                         } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm`}
                         placeholder="Full Name"
                       />
-                      {errors.name && <p className="mt-2 text-sm text-red-600">{errors.name}</p>}
+                      {errors.name && (
+                        <p className="mt-2 text-sm text-red-600">
+                          {errors.name}
+                        </p>
+                      )}
                     </div>
                   )}
 
@@ -209,7 +224,11 @@ export default function Login() {
                       } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm`}
                       placeholder="Email address"
                     />
-                    {errors.email && <p className="mt-2 text-sm text-red-600">{errors.email}</p>}
+                    {errors.email && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.email}
+                      </p>
+                    )}
                   </div>
 
                   {!isLogin && (
@@ -229,7 +248,11 @@ export default function Login() {
                         } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm`}
                         placeholder="Phone Number"
                       />
-                      {errors.phone && <p className="mt-2 text-sm text-red-600">{errors.phone}</p>}
+                      {errors.phone && (
+                        <p className="mt-2 text-sm text-red-600">
+                          {errors.phone}
+                        </p>
+                      )}
                     </div>
                   )}
 
@@ -249,7 +272,11 @@ export default function Login() {
                       } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm`}
                       placeholder="Password"
                     />
-                    {errors.password && <p className="mt-2 text-sm text-red-600">{errors.password}</p>}
+                    {errors.password && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {errors.password}
+                      </p>
+                    )}
                   </div>
 
                   {!isLogin && (
@@ -266,17 +293,24 @@ export default function Login() {
                           value={formData.confirmPassword}
                           onChange={handleChange}
                           className={`appearance-none relative block w-full px-3 py-2 border ${
-                            errors.confirmPassword ? "border-red-300" : "border-gray-300"
+                            errors.confirmPassword
+                              ? "border-red-300"
+                              : "border-gray-300"
                           } placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm`}
                           placeholder="Confirm Password"
                         />
                         {errors.confirmPassword && (
-                          <p className="mt-2 text-sm text-red-600">{errors.confirmPassword}</p>
+                          <p className="mt-2 text-sm text-red-600">
+                            {errors.confirmPassword}
+                          </p>
                         )}
                       </div>
 
                       <div className="mb-4">
-                        <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label
+                          htmlFor="role"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
                           I want to
                         </label>
                         <select
@@ -288,6 +322,7 @@ export default function Login() {
                         >
                           <option value="buyer">Buy cattle</option>
                           <option value="seller">Sell cattle</option>
+                          <option value="admin">Admin</option>
                         </select>
                       </div>
                     </>
@@ -305,13 +340,19 @@ export default function Login() {
                     type="checkbox"
                     className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                   />
-                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                  <label
+                    htmlFor="remember-me"
+                    className="ml-2 block text-sm text-gray-900"
+                  >
                     Remember me
                   </label>
                 </div>
 
                 <div className="text-sm">
-                  <Link href="/forgot-password" className="font-medium text-green-600 hover:text-green-500">
+                  <Link
+                    href="/forgot-password"
+                    className="font-medium text-green-600 hover:text-green-500"
+                  >
                     Forgot your password?
                   </Link>
                 </div>
@@ -361,5 +402,5 @@ export default function Login() {
         </div>
       </div>
     </>
-  )
+  );
 }

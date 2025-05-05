@@ -54,7 +54,10 @@ export const AuthProvider = ({ children }) => {
   const verifyOTP = async (phone, otp) => {
     try {
       setError(null);
-      const res = await axios.post(`${API_URL}/api/auth/verify-otp`, { phone, otp });
+      const res = await axios.post(`${API_URL}/api/auth/verify-otp`, {
+        phone,
+        otp,
+      });
       localStorage.setItem("token", res.data.token);
       setUser(res.data.user);
       return res.data;
@@ -68,7 +71,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setError(null);
-      const res = await axios.post(`${API_URL}/api/auth/login`, { email, password });
+      const res = await axios.post(`${API_URL}/api/auth/login`, {
+        email,
+        password,
+      });
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("userData", JSON.stringify(res.data.user));
       setUser(res.data.user);
@@ -96,7 +102,11 @@ export const AuthProvider = ({ children }) => {
           Authorization: `Bearer ${token}`,
         },
       };
-      const res = await axios.put(`${API_URL}/api/auth/update-profile`, userData, config);
+      const res = await axios.put(
+        `${API_URL}/api/auth/update-profile`,
+        userData,
+        config
+      );
       setUser(res.data);
       return res.data;
     } catch (err) {
@@ -115,7 +125,11 @@ export const AuthProvider = ({ children }) => {
           Authorization: `Bearer ${token}`,
         },
       };
-      await axios.put(`${API_URL}/api/auth/change-password`, { currentPassword, newPassword }, config);
+      await axios.put(
+        `${API_URL}/api/auth/change-password`,
+        { currentPassword, newPassword },
+        config
+      );
     } catch (err) {
       setError(err.response?.data?.message || "Password change failed");
       throw err;
