@@ -588,7 +588,6 @@ useEffect(() => {
                     onChange={handleImageChange}
                     className="hidden"
                   />
-// Replace the current image preview code with this optimized version:
 {imagePreviewUrls.length > 0 ? (
   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-4">
     {imagePreviewUrls.map((url, index) => (

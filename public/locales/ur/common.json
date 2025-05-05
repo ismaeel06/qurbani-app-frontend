@@ -1,0 +1,104 @@
+{
+  "app_name": "قربانی ایپ",
+  "nav": {
+    "home": "ہوم",
+    "catalog": "کیٹلاگ",
+    "contact": "رابطہ کریں",
+    "profile": "پروفائل",
+    "settings": "ترتیبات",
+    "login": "لاگ ان",
+    "logout": "لاگ آؤٹ",
+    "add_listing": "لسٹنگ شامل کریں",
+    "favorites": "پسندیدہ",
+    "chat": "پیغامات",
+    "Seller": "بیچنے والا",
+    "Buyer": "خریدار",
+    "admin": "ایڈمن"
+  },
+  "home": {
+    "hero_title": "اپنی قربانی کے لیے مثالی جانور تلاش کریں",
+    "hero_subtitle": "اپنی قربانی کے لیے ہزاروں مویشیوں میں سے چنیں",
+    "browse_button": "مویشی براؤز کریں",
+    "add_listing_button": "اپنی لسٹنگ شامل کریں",
+    "featured_listings": "نمایاں لسٹنگز",
+    "how_it_works": "یہ کیسے کام کرتا ہے",
+    "testimonials": "صارفین کیا کہتے ہیں"
+  },
+  "catalog": {
+    "title": "مویشی براؤز کریں",
+    "filter_by_category": "زمرے کے حساب سے فلٹر کریں",
+    "filter_by_location": "مقام کے حساب سے فلٹر کریں",
+    "filter_by_price": "قیمت کے حساب سے فلٹر کریں",
+    "search_placeholder": "جانور تلاش کریں...",
+    "sort_by": "ترتیب دیں",
+    "sort_newest": "تازہ ترین",
+    "sort_price_low": "قیمت: کم سے زیادہ",
+    "sort_price_high": "قیمت: زیادہ سے کم",
+    "no_results": "کوئی نتیجہ نہیں ملا"
+  },
+  "listing": {
+    "price": "قیمت",
+    "location": "مقام",
+    "weight": "وزن",
+    "age": "عمر",
+    "color": "رنگ",
+    "breed": "نسل",
+    "seller": "بیچنے والا",
+    "contact_seller": "بیچنے والے سے رابطہ کریں",
+    "add_to_favorites": "پسندیدہ میں شامل کریں",
+    "related_listings": "متعلقہ لسٹنگز"
+  },
+  "add_listing": {
+    "title": "نئی لسٹنگ شامل کریں",
+    "category": "جانور کا زمرہ",
+    "price": "قیمت",
+    "weight": "وزن (کلوگرام)",
+    "age": "عمر (مہینے)",
+    "color": "رنگ",
+    "breed": "نسل",
+    "description": "تفصیل",
+    "location": "مقام",
+    "upload_photos": "تصاویر اپلوڈ کریں",
+    "submit": "لسٹنگ جمع کریں"
+  },
+  "categories": {
+    "cow": "گائے",
+    "goat": "بکری",
+    "sheep": "بھیڑ",
+    "camel": "اونٹ",
+    "buffalo": "بھینس"
+  },
+  "auth": {
+    "login": "لاگ ان",
+    "register": "رجسٹر",
+    "email": "ای میل",
+    "password": "پاس ورڈ",
+    "confirm_password": "پاس ورڈ کی تصدیق کریں",
+    "name": "پورا نام",
+    "phone": "فون نمبر",
+    "forgot_password": "پاس ورڈ بھول گئے؟",
+    "no_account": "اکاؤنٹ نہیں ہے؟",
+    "have_account": "پہلے سے اکاؤنٹ ہے؟"
+  },
+  "profile": {
+    "my_listings": "میری لسٹنگز",
+    "edit_profile": "پروفائل میں ترمیم کریں",
+    "change_password": "پاس ورڈ تبدیل کریں",
+    "saved_listings": "محفوظ کردہ لسٹنگز"
+  },
+  "admin": {
+    "dashboard": "ڈیشبورڈ",
+    "users": "صارفین",
+    "listings": "لسٹنگز",
+    "reports": "رپورٹس",
+    "settings": "ترتیبات"
+  },
+  "footer": {
+    "about_us": "ہمارے بارے میں",
+    "terms": "شرائط و ضوابط",
+    "privacy": "رازداری کی پالیسی",
+    "contact_us": "ہم سے رابطہ کریں",
+    "faq": "اکثر پوچھے گئے سوالات",
+    "copyright": "© 2025 قربانی ایپ۔ تمام حقوق محفوظ ہیں۔"
+  }
+}
