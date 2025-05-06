@@ -51,7 +51,7 @@ export default function Home() {
 
         <section className="py-12 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-8">{t('catalog.filter_by_category')}</h2>
+            <h2 className="text-3xl font-bold text-center mb-8">{t('category_selection.title')}</h2>
             <CategorySelector />
           </div>
         </section>

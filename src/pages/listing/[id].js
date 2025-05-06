@@ -16,6 +16,7 @@ import {
   User,
   ChevronLeft,
   ChevronRight,
+  Phone,
 } from "react-feather";
 import { ListingContext } from "../../context/listingContext.js";
 import { AuthContext } from "../../context/authContext.js";
@@ -39,13 +40,20 @@ export default function ListingDetail() {
   const [reportType, setReportType] = useState("Other");
   const [reportReason, setReportReason] = useState("");
 
+  const handleCopyPhone = (phone) => {
+    navigator.clipboard.writeText(phone);
+    alert("Phone number copied to clipboard!");
+  };
+
   useEffect(() => {
     if (id) {
       const fetchListing = async () => {
         try {
           setIsLoading(true);
           const data = await getListing(id);
-          console.log(data);
+          console.log("Listing data:", data);
+          console.log("Seller data:", data.seller);
+          console.log("Seller phone:", data.seller.phone);
           setListing(data);
 
           // Check if listing is in user's favorites
@@ -492,6 +500,25 @@ export default function ListingDetail() {
                   <span>Listings: {listing.seller.listingCount || 0}</span>
                   <span>Verified Seller</span>
                 </div>
+
+                {/* Seller Phone Number */}
+{listing.seller.phone ? (
+  <div className="flex items-center text-gray-600 mb-4">
+    <Phone size={18} className="mr-2 text-green-600" />
+    <button 
+      onClick={() => handleCopyPhone(listing.seller.phone)}
+      className="font-medium text-green-600 hover:text-green-700 hover:underline cursor-pointer flex items-center"
+    >
+      <span className="text-base">{listing.seller.phone}</span>
+      <span className="ml-2 text-xs text-gray-500 font-normal">(Click to copy)</span>
+    </button>
+  </div>
+) : (
+  <div className="flex items-center text-gray-600 mb-4">
+    <Phone size={18} className="mr-2 text-gray-500" />
+    <span className="text-gray-500 italic">Phone not available</span>
+  </div>
+)}
 
                 {user && user._id !== listing.seller._id && (
                   <button

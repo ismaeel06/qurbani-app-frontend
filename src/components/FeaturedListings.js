@@ -6,6 +6,7 @@ import { Heart } from "react-feather"
 import { useContext } from "react"
 import { AuthContext } from "../context/authContext"
 import { ListingContext } from "../context/listingContext"
+import { useTranslation } from "react-i18next"
 
 // Category image mapping
 const categoryImages = {
@@ -19,6 +20,8 @@ const categoryImages = {
 export default function FeaturedListings({ listings, isLoading }) {
   const { user } = useContext(AuthContext)
   const { toggleFavorite } = useContext(ListingContext)
+  const { t, i18n } = useTranslation()
+  const isRTL = i18n.language === 'ur'
 
   if (isLoading) {
     return (
@@ -40,7 +43,9 @@ export default function FeaturedListings({ listings, isLoading }) {
   if (!listings || listings.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-600 text-lg">No featured listings available at the moment.</p>
+        <p className="text-gray-600 text-lg" dir={isRTL ? "rtl" : "ltr"}>
+          {t('home.no_featured_listings')}
+        </p>
       </div>
     )
   }
@@ -55,12 +60,13 @@ export default function FeaturedListings({ listings, isLoading }) {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {listings.map((listing) => (
         <Link key={listing._id} href={`/listing/${listing._id}`}>
-          <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-200">
+          <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow border border-gray-200"
+              dir={isRTL ? "rtl" : "ltr"}>
             <div className="relative h-48">
               <Image src={listing.images[0] || "/placeholder.svg"} alt={listing.title} fill className="object-cover" />
               <button
                 onClick={(e) => handleFavoriteToggle(e, listing._id)}
-                className={`absolute top-2 right-2 p-2 rounded-full ${
+                className={`absolute top-2 ${isRTL ? 'left-2' : 'right-2'} p-2 rounded-full ${
                   user && user.favorites.includes(listing._id)
                     ? "bg-red-100 text-red-500"
                     : "bg-white text-gray-400 hover:text-red-500"
@@ -70,9 +76,9 @@ export default function FeaturedListings({ listings, isLoading }) {
               </button>
             </div>
             <div className="p-4">
-              <h3 className="text-lg font-semibold mb-1 text-gray-800">{listing.title}</h3>
-              <p className="text-gray-600 mb-2">{listing.location}</p>
-              <div className="flex justify-between items-center">
+              <h3 className={`text-lg font-semibold mb-1 text-gray-800 ${isRTL ? 'text-right' : ''}`}>{listing.title}</h3>
+              <p className={`text-gray-600 mb-2 ${isRTL ? 'text-right' : ''}`}>{listing.location}</p>
+              <div className={`flex justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <span className="text-xl font-bold text-green-600">Rs. {listing.price.toLocaleString()}</span>
                 {/* Category image in bottom right corner */}
                 {listing.category && categoryImages[listing.category] && (

@@ -10,7 +10,10 @@
     "logout": "Logout",
     "add_listing": "Add Listing",
     "favorites": "Favorites",
-    "chat": "Messages"
+    "chat": "Messages",
+    "Seller": "Seller",
+    "Buyer": "Buyer",
+    "admin": "Admin"
   },
   "home": {
     "hero_title": "Find the Perfect Qurbani Animal",
@@ -19,7 +22,17 @@
     "add_listing_button": "Add Your Listing",
     "featured_listings": "Featured Listings",
     "how_it_works": "How It Works",
-    "testimonials": "What Our Users Say"
+    "testimonials": "What Our Users Say",
+    "Sign Up / Login": "Sign Up / Login",
+    "no_featured_listings": "No featured listings available"
+  },
+  "category_selection": {
+    "title": "Select Animal Category",
+    "cow": "Cow",
+    "goat": "Goat",
+    "sheep": "Sheep",
+    "camel": "Camel",
+    "buffalo": "Buffalo"
   },
   "catalog": {
     "title": "Browse Cattle",
@@ -31,7 +44,12 @@
     "sort_newest": "Newest",
     "sort_price_low": "Price: Low to High",
     "sort_price_high": "Price: High to Low",
-    "no_results": "No results found"
+    "no_results": "No results found",
+    "categories": "Categories",
+    "all_categories": "All Categories",
+    "all_locations": "All Locations",
+    "apply": "Apply",
+    "clear_filters": "Clear Filters"
   },
   "listing": {
     "price": "Price",
@@ -43,7 +61,8 @@
     "seller": "Seller",
     "contact_seller": "Contact Seller",
     "add_to_favorites": "Add to Favorites",
-    "related_listings": "Related Listings"
+    "related_listings": "Related Listings",
+    "no_similar_listings": "No similar listings found"
   },
   "add_listing": {
     "title": "Add New Listing",
@@ -91,11 +110,46 @@
     "settings": "Settings"
   },
   "footer": {
+    "about_description": "The premier platform for buying and selling cattle for Eid ul Adha. Connect directly with trusted sellers across Pakistan.",
+    "quick_links": "Quick Links",
     "about_us": "About Us",
     "terms": "Terms & Conditions",
     "privacy": "Privacy Policy",
     "contact_us": "Contact Us",
+    "address": "Address: 123 Qurbani App, Lahore, Pakistan",
     "faq": "FAQ",
     "copyright": "© 2025 Qurbani App. All rights reserved."
+  },
+  "how_it_works": {
+    "browse": {
+      "title": "Browse Listings",
+      "description": "Search through our extensive catalog of cattle from trusted sellers across the country."
+    },
+    "contact": {
+      "title": "Contact Seller",
+      "description": "Use our secure chat system to discuss details and negotiate with the seller directly."
+    },
+    "inspect": {
+      "title": "Inspect & Purchase",
+      "description": "Arrange to inspect the animal in person before finalizing your purchase."
+    },
+    "delivery": {
+      "title": "Arrange Delivery",
+      "description": "Coordinate with the seller for pickup or delivery of your animal for Qurbani."
+    }
+  },
+  "testimonials": {
+    "1": {
+      "quote": "I found the perfect cow for my Qurbani through this platform. The process was smooth and the seller was very honest.",
+      "author": "Ahmed Khan"
+    },
+    "2": {
+      "quote": "As a seller, I've been able to connect with buyers directly without middlemen. This has helped me get fair prices for my animals.",
+      "author": "Malik Farms"
+    },
+    "3": {
+      "quote": "The verification process gives me confidence that I'm dealing with legitimate sellers. Will definitely use again next year.",
+      "author": "Fatima Aziz"
+    }
   }
 }

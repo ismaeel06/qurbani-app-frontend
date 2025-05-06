@@ -2,28 +2,32 @@
 
 import { useState, useEffect } from "react"
 import { X } from "react-feather"
-
-const categories = [
-  { id: "cow", name: "Cows" },
-  { id: "goat", name: "Goats" },
-  { id: "sheep", name: "Sheep" },
-  { id: "camel", name: "Camels" },
-  { id: "buffalo", name: "Buffaloes" },
-]
-
-const locations = [
-  "Karachi",
-  "Lahore",
-  "Islamabad",
-  "Peshawar",
-  "Quetta",
-  "Multan",
-  "Faisalabad",
-  "Rawalpindi",
-  "Hyderabad",
-]
+import { useTranslation } from "react-i18next"
 
 export default function FilterSidebar({ filters, onFilterChange, onClearFilters, isMobile = false }) {
+  const { t, i18n } = useTranslation()
+  const isRTL = i18n.language === 'ur'
+  
+  const categories = [
+    { id: "cow", name: t('categories.cow') },
+    { id: "goat", name: t('categories.goat') },
+    { id: "sheep", name: t('categories.sheep') },
+    { id: "camel", name: t('categories.camel') },
+    { id: "buffalo", name: t('categories.buffalo') },
+  ]
+
+  const locations = [
+    "Karachi",
+    "Lahore",
+    "Islamabad",
+    "Peshawar",
+    "Quetta",
+    "Multan",
+    "Faisalabad",
+    "Rawalpindi",
+    "Hyderabad",
+  ]
+
   const [priceRange, setPriceRange] = useState({
     min: filters.minPrice || "",
     max: filters.maxPrice || "",
@@ -50,9 +54,9 @@ export default function FilterSidebar({ filters, onFilterChange, onClearFilters,
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Filters</h3>
+    <div className="bg-white rounded-lg shadow-sm p-4" dir={isRTL ? "rtl" : "ltr"}>
+      <div className={`flex justify-between items-center mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <h3 className="text-lg font-semibold">{t('catalog.filter_by_category')}</h3>
         {isMobile && (
           <button onClick={() => onClearFilters()} className="text-gray-500">
             <X size={20} />
@@ -62,33 +66,33 @@ export default function FilterSidebar({ filters, onFilterChange, onClearFilters,
 
       {/* Categories */}
       <div className="mb-6">
-        <h4 className="font-medium mb-2">Category</h4>
+        <h4 className={`font-medium mb-2 ${isRTL ? 'text-right' : ''}`}>{t('catalog.filter_by_category')}</h4>
         <div className="space-y-2">
-          <div className="flex items-center">
+          <div className={`flex items-center ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
             <input
               id="category-all"
               type="radio"
               name="category"
               checked={!filters.category}
               onChange={() => onFilterChange("category", "")}
-              className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300"
+              className={`h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 ${isRTL ? 'ml-2' : 'mr-2'}`}
             />
-            <label htmlFor="category-all" className="ml-2 text-gray-700">
-              All Categories
+            <label htmlFor="category-all" className={`${isRTL ? 'ml-auto' : 'ml-2'} text-gray-700`}>
+              {t('catalog.all_categories')}
             </label>
           </div>
 
           {categories.map((category) => (
-            <div key={category.id} className="flex items-center">
+            <div key={category.id} className={`flex items-center ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
               <input
                 id={`category-${category.id}`}
                 type="radio"
                 name="category"
                 checked={filters.category === category.id}
                 onChange={() => onFilterChange("category", category.id)}
-                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300"
+                className={`h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 ${isRTL ? 'ml-2' : 'mr-2'}`}
               />
-              <label htmlFor={`category-${category.id}`} className="ml-2 text-gray-700">
+              <label htmlFor={`category-${category.id}`} className={`${isRTL ? 'ml-auto' : 'ml-2'} text-gray-700`}>
                 {category.name}
               </label>
             </div>
@@ -98,8 +102,8 @@ export default function FilterSidebar({ filters, onFilterChange, onClearFilters,
 
       {/* Price Range */}
       <div className="mb-6">
-        <h4 className="font-medium mb-2">Price Range (Rs.)</h4>
-        <div className="flex items-center gap-2">
+        <h4 className={`font-medium mb-2 ${isRTL ? 'text-right' : ''}`}>{t('catalog.filter_by_price')}</h4>
+        <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <input
             type="number"
             name="min"
@@ -122,19 +126,19 @@ export default function FilterSidebar({ filters, onFilterChange, onClearFilters,
           onClick={applyPriceRange}
           className="mt-2 w-full py-1 bg-gray-100 text-gray-700 rounded-md text-sm hover:bg-gray-200"
         >
-          Apply
+          {t('catalog.apply')}
         </button>
       </div>
 
       {/* Location */}
       <div className="mb-6">
-        <h4 className="font-medium mb-2">Location</h4>
+        <h4 className={`font-medium mb-2 ${isRTL ? 'text-right' : ''}`}>{t('catalog.filter_by_location')}</h4>
         <select
           value={filters.location}
           onChange={(e) => onFilterChange("location", e.target.value)}
           className="w-full p-2 border border-gray-300 rounded-md text-sm"
         >
-          <option value="">All Locations</option>
+          <option value="">{t('catalog.all_locations')}</option>
           {locations.map((location) => (
             <option key={location} value={location}>
               {location}
@@ -145,7 +149,7 @@ export default function FilterSidebar({ filters, onFilterChange, onClearFilters,
 
       {/* Clear Filters Button */}
       <button onClick={onClearFilters} className="w-full py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
-        Clear All Filters
+        {t('catalog.clear_filters')}
       </button>
     </div>
   )
