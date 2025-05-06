@@ -1,240 +1,257 @@
 "use client"
 
-import { createContext, useState, useEffect, useContext, useCallback } from "react"
+import { createContext, useState, useEffect, useContext, useRef, useCallback } from "react"
+import { useRouter } from "next/router" 
 import { AuthContext } from "./authContext"
-import { io } from "socket.io-client"
-import axios from "axios"
+import { SocketContext } from "./socketContext"
 
 export const ChatContext = createContext()
 
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
 export const ChatProvider = ({ children }) => {
-  const [socket, setSocket] = useState(null)
   const [chats, setChats] = useState([])
-  const [currentChat, setCurrentChat] = useState(null)
   const [messages, setMessages] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [currentChat, setCurrentChat] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [onlineUsers, setOnlineUsers] = useState([])
   const { user } = useContext(AuthContext)
-
-  // Initialize socket connection
+  const { socket, onlineUsers, emitMessage, markAsRead } = useContext(SocketContext)
+  
+  // Track if we need to refresh messages
+  const shouldRefreshMessages = useRef(false)
+  
+  // Initial load of chats
   useEffect(() => {
     if (user) {
-      const newSocket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000", {
-        query: {
-          userId: user._id,
-        },
-      })
-
-      setSocket(newSocket)
-
-      return () => {
-        newSocket.disconnect()
-      }
+      getChats()
     }
   }, [user])
-
-  // Socket event listeners
+  
+  // Socket event listeners setup
   useEffect(() => {
-    if (socket) {
-      // Update online users
-      socket.on("getOnlineUsers", (users) => {
-        setOnlineUsers(users)
-      })
-
-      // Receive new message
-      socket.on("receiveMessage", (newMessage) => {
-        if (currentChat && currentChat._id === newMessage.chatId) {
-          setMessages((prev) => [...prev, newMessage])
-        }
-
-        // Update chat list to show latest message
-        setChats((prev) => {
-          const updatedChats = prev.map((chat) => {
-            if (chat._id === newMessage.chatId) {
-              return {
-                ...chat,
-                latestMessage: newMessage,
-                unreadCount: chat._id === currentChat?._id ? 0 : chat.unreadCount + 1,
-              }
-            }
-            return chat
-          })
-
-          return updatedChats
-        })
-      })
-
-      // Mark messages as read
-      socket.on("messagesRead", ({ chatId }) => {
-        setChats((prev) => {
-          return prev.map((chat) => {
-            if (chat._id === chatId) {
-              return { ...chat, unreadCount: 0 }
-            }
-            return chat
-          })
-        })
-      })
+    if (!socket || !user) return
+    
+    const handleReceiveMessage = async (data) => {
+      if (currentChat && data.chatId === currentChat._id) {
+        // Option 1: Add the new message directly
+        // setMessages(prev => [...prev, data])
+        
+        // Option 2: Refresh the entire message list (better for sync)
+        shouldRefreshMessages.current = true
+        await getChatMessages(currentChat._id, true)
+        
+        // Mark as read since user is in this chat
+        markAsRead(currentChat._id)
+      }
+      
+      // Always refresh chats list when a new message arrives
+      await getChats()
     }
-
+    
+    const handleMessagesRead = ({ chatId }) => {
+      if (currentChat && chatId === currentChat._id) {
+        // Update read status in the UI
+        setMessages(prev => 
+          prev.map(msg => 
+            user._id === msg.sender._id ? { ...msg, read: true } : msg
+          )
+        )
+      }
+    }
+    
+    const handleChatUpdated = async () => {
+      // Refresh both chats and current messages
+      await getChats()
+      if (currentChat) {
+        await getChatMessages(currentChat._id, true)
+      }
+    }
+    
+    socket.on("receiveMessage", handleReceiveMessage)
+    socket.on("messagesRead", handleMessagesRead)
+    socket.on("chatUpdated", handleChatUpdated)
+    
     return () => {
-      if (socket) {
-        socket.off("getOnlineUsers")
-        socket.off("receiveMessage")
-        socket.off("messagesRead")
-      }
+      socket.off("receiveMessage", handleReceiveMessage)
+      socket.off("messagesRead", handleMessagesRead)
+      socket.off("chatUpdated", handleChatUpdated)
     }
-  }, [socket, currentChat])
-
-  // Get user's chats
-  const getChats = useCallback(async () => {
+  }, [socket, currentChat, user])
+  
+  // Effect to handle message refreshes when current chat changes
+  useEffect(() => {
+    if (currentChat) {
+      getChatMessages(currentChat._id)
+      markAsRead(currentChat._id)
+    } else {
+      setMessages([])
+    }
+  }, [currentChat])
+  
+  const getChats = async () => {
     try {
       setLoading(true)
-      setError(null)
-
       const token = localStorage.getItem("token")
-      const config = {
+      
+      const response = await fetch(`http://localhost:5000/api/chats`, {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
+          Authorization: `Bearer ${token}`
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setChats(data)
       }
-
-      const res = await axios.get(`${API_URL}/api/chats`, config)
-      setChats(res.data)
-      return res.data
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch chats")
-      throw err
+    } catch (error) {
+      console.error("Error fetching chats:", error)
     } finally {
       setLoading(false)
     }
-  }, [])
-
-  // Get chat messages
-  const getChatMessages = useCallback(async (chatId) => {
+  }
+  
+  const getChatMessages = async (chatId, silent = false) => {
+    try {
+      if (!silent) setLoading(true)
+      const token = localStorage.getItem("token")
+      
+      const response = await fetch(`http://localhost:5000/api/chats/${chatId}/messages`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setMessages(data)
+        return data
+      }
+      return []
+    } catch (error) {
+      console.error("Error fetching messages:", error)
+      return []
+    } finally {
+      if (!silent) setLoading(false)
+    }
+  }
+  
+  const sendMessage = async (chatId, content) => {
+    try {
+      const token = localStorage.getItem("token")
+      
+      const response = await fetch(`http://localhost:5000/api/chats/${chatId}/messages`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ content })
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Add the new message to the messages state
+        setMessages(prev => [...prev, data])
+        
+        // Emit the message via socket
+        emitMessage(chatId, data)
+        
+        // Refresh chats to update last message
+        await getChats()
+        
+        return data
+      }
+    } catch (error) {
+      console.error("Error sending message:", error)
+      throw error
+    }
+  }
+  
+  const createChat = async (listingId, sellerId) => {
     try {
       setLoading(true)
-      setError(null)
-
       const token = localStorage.getItem("token")
-      const config = {
+      
+      const response = await fetch("http://localhost:5000/api/chats", {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
         },
+        body: JSON.stringify({ listingId, sellerId })
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        
+        // Update chats list
+        await getChats()
+        
+        // Return the new chat
+        return data
       }
-
-      const res = await axios.get(`${API_URL}/api/chats/${chatId}/messages`, config)
-      setMessages(res.data)
-
-      // Mark messages as read
-      if (socket) {
-        socket.emit("markMessagesAsRead", { chatId, userId: user._id })
-      }
-
-      return res.data
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch messages")
-      throw err
+    } catch (error) {
+      console.error("Error creating chat:", error)
     } finally {
       setLoading(false)
     }
-  }, [user])
-
-  // Start a new chat for a listing
+  }
+  
+  // Start a new chat for a listing and navigate to it
   const startChat = useCallback(async (listingId, sellerId) => {
     try {
       setLoading(true)
       setError(null)
-
+      
       const token = localStorage.getItem("token")
-      const config = {
+      
+      const response = await fetch("http://localhost:5000/api/chats", {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
         },
+        body: JSON.stringify({ listingId, sellerId })
+      })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || "Failed to start chat")
       }
-
-      const res = await axios.post(`${API_URL}/api/chats`, { listingId, sellerId }, config)
-
-      // Add new chat to chats list
-      setChats((prev) => [res.data, ...prev])
-
-      return res.data
+      
+      const newChat = await response.json()
+      
+      // Add new chat to chats list and refresh chats
+      setChats(prev => [newChat, ...prev])
+      
+      // Set this as the current chat
+      setCurrentChat(newChat)
+      
+      return newChat
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to start chat")
+      setError(err.message || "Failed to start chat")
+      console.error("Error starting chat:", err)
       throw err
     } finally {
       setLoading(false)
     }
   }, [])
-
-  // Send a message
-  const sendMessage = useCallback(async (chatId, content) => {
-    try {
-      setError(null)
-
-      const token = localStorage.getItem("token")
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-
-      const res = await axios.post(`${API_URL}/api/chats/${chatId}/messages`, { content }, config)
-
-      // Emit message to socket
-      if (socket) {
-        socket.emit("sendMessage", {
-          ...res.data,
-          sender: {
-            _id: user._id,
-            name: user.name,
-          },
-        })
-      }
-
-      // Update messages list
-      setMessages((prev) => [...prev, res.data])
-
-      // Update chat list to show latest message
-      setChats((prev) => {
-        const updatedChats = prev.map((chat) => {
-          if (chat._id === chatId) {
-            return {
-              ...chat,
-              latestMessage: res.data,
-            }
-          }
-          return chat
-        })
-
-        return updatedChats
-      })
-
-      return res.data
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to send message")
-      throw err
-    }
-  }, [socket, user])
-
+  
   return (
     <ChatContext.Provider
       value={{
-        socket,
         chats,
-        currentChat,
-        setCurrentChat,
         messages,
+        currentChat,
         loading,
         error,
         onlineUsers,
         getChats,
         getChatMessages,
-        startChat,
         sendMessage,
+        createChat,
+        startChat,
+        setCurrentChat
       }}
     >
       {children}

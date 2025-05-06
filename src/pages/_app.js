@@ -6,6 +6,7 @@ import { ListingProvider } from "../context/listingContext"
 import { ChatProvider } from "../context/chatContext"
 import Layout from "../components/Layout"
 import "../styles/globals.css"
+import { SocketProvider } from "@/context/socketContext"
 
 function MyApp({ Component, pageProps }) {
   // Remove the server-side injected CSS when running on client
@@ -19,11 +20,14 @@ function MyApp({ Component, pageProps }) {
   return (
     <AuthProvider>
       <ListingProvider>
+        <SocketProvider>
         <ChatProvider>
           <Layout>
             <Component {...pageProps} />
           </Layout>
         </ChatProvider>
+        </SocketProvider>
+
       </ListingProvider>
     </AuthProvider>
   )
