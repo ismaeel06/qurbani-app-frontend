@@ -3,11 +3,14 @@
 import { useState, useEffect, useContext } from "react";
 import { ListingContext } from "../context/listingContext";
 import ListingCard from "./ListingCard";
+import { useTranslation } from "react-i18next";
 
 export default function RelatedListings({ currentListingId, category }) {
   const { getListings } = useContext(ListingContext);
   const [listings, setListings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ur';
 
   useEffect(() => {
     const fetchRelatedListings = async () => {
@@ -53,7 +56,9 @@ export default function RelatedListings({ currentListingId, category }) {
   if (listings.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">No similar listings found.</p>
+        <p className="text-gray-600" dir={isRTL ? "rtl" : "ltr"}>
+          {t('listing.no_similar_listings') || "No similar listings found."}
+        </p>
       </div>
     );
   }

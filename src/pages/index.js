@@ -9,11 +9,15 @@ import CategorySelector from "../components/CategorySelector"
 import HeroSection from "../components/HeroSection"
 import TestimonialSection from "../components/TestimonialSection"
 import HowItWorks from "../components/HowItWorks"
+import { useTranslation } from 'react-i18next'
+import { useRouter } from 'next/router'
 
 export default function Home() {
   const { getFeaturedListings } = useContext(ListingContext)
   const [featuredListings, setFeaturedListings] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const { t } = useTranslation()
+  const router = useRouter()
 
   useEffect(() => {
     const loadFeaturedListings = async () => {
@@ -34,10 +38,10 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Qurbani App - Find the Perfect Cattle for Eid ul Adha</title>
+        <title>{t('app_name')} - {t('home.hero_title')}</title>
         <meta
           name="description"
-          content="Buy and sell cattle for Eid ul Adha sacrifice (Qurbani) - cows, goats, sheep, camels and more."
+          content={t('home.hero_subtitle')}
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -47,7 +51,7 @@ export default function Home() {
 
         <section className="py-12 bg-white">
           <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-8">Browse by Category</h2>
+            <h2 className="text-3xl font-bold text-center mb-8">{t('category_selection.title')}</h2>
             <CategorySelector />
           </div>
         </section>
@@ -55,9 +59,9 @@ export default function Home() {
         <section className="py-12 bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-bold">Featured Listings</h2>
+              <h2 className="text-3xl font-bold">{t('home.featured_listings')}</h2>
               <Link href="/catalog" className="text-green-600 hover:text-green-700 font-medium">
-                View All
+                {t('catalog.title')}
               </Link>
             </div>
             <FeaturedListings listings={featuredListings} isLoading={isLoading} />

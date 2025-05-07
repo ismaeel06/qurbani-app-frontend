@@ -4,14 +4,21 @@ import { useState, useEffect, useContext } from "react"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { AuthContext } from "../context/authContext"
-import { Menu, X, User, Heart, MessageCircle, ShoppingBag, LogOut } from "react-feather"
+import { Menu, X, User, Heart, MessageCircle, ShoppingBag, LogOut, Globe } from "react-feather"
+import { useTranslation } from 'react-i18next'
+import { useLanguage } from "../i18n"
 
 export default function Header() {
   const { user, logout } = useContext(AuthContext)
   const router = useRouter()
+  const { t } = useTranslation()
+  const { currentLanguage, changeLanguage } = useLanguage()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  
+  const isRTL = currentLanguage === 'ur'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,6 +45,7 @@ export default function Header() {
   const closeMenus = () => {
     setIsMenuOpen(false)
     setIsProfileMenuOpen(false)
+    setIsLangMenuOpen(false)
   }
 
   return (
@@ -50,11 +58,11 @@ export default function Header() {
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <Link href="/" className="text-2xl font-bold text-green-600">
-            Qurbani App
+            {t('app_name')}
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className={`hidden md:flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-6`}>
             <Link
               href="/"
               className={`${
@@ -65,7 +73,7 @@ export default function Header() {
                     : "text-white hover:text-green-200"
               }`}
             >
-              Home
+              {t('nav.home')}
             </Link>
             <Link
               href="/catalog"
@@ -77,7 +85,7 @@ export default function Header() {
                     : "text-white hover:text-green-200"
               }`}
             >
-              Browse Cattle
+              {t('nav.catalog')}
             </Link>
             <Link
               href="/contact"
@@ -89,7 +97,7 @@ export default function Header() {
                     : "text-white hover:text-green-200"
               }`}
             >
-              Contact
+              {t('nav.contact')}
             </Link>
 
             {user && user.role === "seller" && (
@@ -103,7 +111,7 @@ export default function Header() {
                       : "text-white hover:text-green-200"
                 }`}
               >
-                Add Listing
+                {t('nav.add_listing')}
               </Link>
             )}
 
@@ -118,18 +126,60 @@ export default function Header() {
                       : "text-white hover:text-green-200"
                 }`}
               >
-                Admin
+                {t('nav.admin')}
               </Link>
             )}
           </nav>
 
           {/* User Menu (Desktop) */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className={`hidden md:flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-4`}>
+            {/* Language Switcher */}
+            <div className="relative">
+              <button
+                onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
+                className={`flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-1 ${
+                  scrolled || router.pathname !== "/"
+                    ? "text-gray-700 hover:text-green-600"
+                    : "text-white hover:text-green-200"
+                }`}
+              >
+                <Globe size={18} />
+                <span>{currentLanguage === 'en' ? 'English' : 'اردو'}</span>
+              </button>
+              
+              {isLangMenuOpen && (
+                <div className={`absolute ${isRTL ? 'left-0' : 'right-0'} mt-2 w-32 bg-white rounded-md shadow-lg py-1 z-10`}>
+                  <button
+                    onClick={() => {
+                      changeLanguage('en');
+                      setIsLangMenuOpen(false);
+                    }}
+                    className={`block w-full text-left px-4 py-2 text-sm ${
+                      currentLanguage === 'en' ? 'bg-green-50 text-green-600' : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => {
+                      changeLanguage('ur');
+                      setIsLangMenuOpen(false);
+                    }}
+                    className={`block w-full ${isRTL ? 'text-right' : 'text-left'} px-4 py-2 text-sm ${
+                      currentLanguage === 'ur' ? 'bg-green-50 text-green-600' : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    اردو
+                  </button>
+                </div>
+              )}
+            </div>
+
             {user ? (
               <div className="relative">
                 <button
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center space-x-2 focus:outline-none"
+                  className={`flex items-center ${isRTL ? 'space-x-reverse' : ''} space-x-2 focus:outline-none`}
                 >
                   <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
                     {user.profileImage ? (
@@ -150,66 +200,66 @@ export default function Header() {
                 </button>
 
                 {isProfileMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                  <div className={`absolute ${isRTL ? 'left-0' : 'right-0'} mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10`}>
                     <Link
                       href="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isRTL ? 'text-right' : ''}`}
                       onClick={closeMenus}
                     >
-                      <div className="flex items-center">
-                        <User size={16} className="mr-2" />
-                        <span>My Profile</span>
+                      <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <User size={16} className={isRTL ? 'mr-0 ml-2' : 'mr-2'} />
+                        <span>{t('nav.profile')}</span>
                       </div>
                     </Link>
                     <Link
                       href="/favorites"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isRTL ? 'text-right' : ''}`}
                       onClick={closeMenus}
                     >
-                      <div className="flex items-center">
-                        <Heart size={16} className="mr-2" />
-                        <span>Favorites</span>
+                      <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <Heart size={16} className={isRTL ? 'mr-0 ml-2' : 'mr-2'} />
+                        <span>{t('nav.favorites')}</span>
                       </div>
                     </Link>
                     <Link
                       href="/chat"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isRTL ? 'text-right' : ''}`}
                       onClick={closeMenus}
                     >
-                      <div className="flex items-center">
-                        <MessageCircle size={16} className="mr-2" />
-                        <span>Messages</span>
+                      <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <MessageCircle size={16} className={isRTL ? 'mr-0 ml-2' : 'mr-2'} />
+                        <span>{t('nav.chat')}</span>
                       </div>
                     </Link>
                     {user.role === "seller" && (
                       <Link
                         href="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isRTL ? 'text-right' : ''}`}
                         onClick={closeMenus}
                       >
-                        <div className="flex items-center">
-                          <ShoppingBag size={16} className="mr-2" />
-                          <span>My Listings</span>
+                        <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                          <ShoppingBag size={16} className={isRTL ? 'mr-0 ml-2' : 'mr-2'} />
+                          <span>{t('profile.my_listings')}</span>
                         </div>
                       </Link>
                     )}
                     <Link
                       href="/settings"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className={`block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 ${isRTL ? 'text-right' : ''}`}
                       onClick={closeMenus}
                     >
-                      <div className="flex items-center">
-                        <User size={16} className="mr-2" />
-                        <span>Settings</span>
+                      <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <User size={16} className={isRTL ? 'mr-0 ml-2' : 'mr-2'} />
+                        <span>{t('nav.settings')}</span>
                       </div>
                     </Link>
                     <button
                       onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className={`block w-full ${isRTL ? 'text-right' : 'text-left'} px-4 py-2 text-sm text-gray-700 hover:bg-gray-100`}
                     >
-                      <div className="flex items-center">
-                        <LogOut size={16} className="mr-2" />
-                        <span>Logout</span>
+                      <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <LogOut size={16} className={isRTL ? 'mr-0 ml-2' : 'mr-2'} />
+                        <span>{t('nav.logout')}</span>
                       </div>
                     </button>
                   </div>
@@ -225,7 +275,7 @@ export default function Header() {
                       : "text-white hover:text-green-200"
                   }`}
                 >
-                  Login
+                  {t('auth.login')}
                 </Link>
                 <Link
                   href="/login"
@@ -235,7 +285,7 @@ export default function Header() {
                       : "bg-white text-green-600 hover:bg-gray-100"
                   }`}
                 >
-                  Sign Up
+                  {t('auth.register')}
                 </Link>
               </>
             )}
@@ -262,24 +312,24 @@ export default function Header() {
           <nav className="flex flex-col py-4">
             <Link
               href="/"
-              className={`px-4 py-2 ${router.pathname === "/" ? "text-green-600 font-medium" : "text-gray-700"}`}
+              className={`px-4 py-2 ${router.pathname === "/" ? "text-green-600 font-medium" : "text-gray-700"} ${isRTL ? 'text-right' : ''}`}
               onClick={closeMenus}
             >
-              Home
+              {t('nav.home')}
             </Link>
             <Link
               href="/catalog"
-              className={`px-4 py-2 ${router.pathname === "/catalog" ? "text-green-600 font-medium" : "text-gray-700"}`}
+              className={`px-4 py-2 ${router.pathname === "/catalog" ? "text-green-600 font-medium" : "text-gray-700"} ${isRTL ? 'text-right' : ''}`}
               onClick={closeMenus}
             >
-              Browse Cattle
+              {t('nav.catalog')}
             </Link>
             <Link
               href="/contact"
-              className={`px-4 py-2 ${router.pathname === "/contact" ? "text-green-600 font-medium" : "text-gray-700"}`}
+              className={`px-4 py-2 ${router.pathname === "/contact" ? "text-green-600 font-medium" : "text-gray-700"} ${isRTL ? 'text-right' : ''}`}
               onClick={closeMenus}
             >
-              Contact
+              {t('nav.contact')}
             </Link>
 
             {user && user.role === "seller" && (
@@ -287,10 +337,10 @@ export default function Header() {
                 href="/add-listing"
                 className={`px-4 py-2 ${
                   router.pathname === "/add-listing" ? "text-green-600 font-medium" : "text-gray-700"
-                }`}
+                } ${isRTL ? 'text-right' : ''}`}
                 onClick={closeMenus}
               >
-                Add Listing
+                {t('nav.add_listing')}
               </Link>
             )}
 
@@ -299,55 +349,91 @@ export default function Header() {
                 href="/admin"
                 className={`px-4 py-2 ${
                   router.pathname.startsWith("/admin") ? "text-green-600 font-medium" : "text-gray-700"
-                }`}
+                } ${isRTL ? 'text-right' : ''}`}
                 onClick={closeMenus}
               >
-                Admin
+                {t('nav.admin')}
               </Link>
             )}
+
+            {/* Language Switcher (Mobile) */}
+            <div className={`px-4 py-2 border-t border-gray-200 mt-2 ${isRTL ? 'text-right' : ''}`}>
+              <div className={`flex items-center ${isRTL ? 'flex-row-reverse justify-end' : ''} space-x-2 text-gray-700 ${isRTL ? 'space-x-reverse' : ''}`}>
+                <Globe size={18} />
+                <span>{isRTL ? "زبان" : "Language"}</span>
+              </div>
+              <div className={`mt-2 flex ${isRTL ? 'justify-end' : ''} space-x-4 ${isRTL ? 'space-x-reverse' : ''}`}>
+                <button
+                  onClick={() => {
+                    changeLanguage('en');
+                    closeMenus();
+                  }}
+                  className={`px-3 py-1 rounded ${
+                    currentLanguage === 'en'
+                      ? 'bg-green-600 text-white'
+                      : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                  }`}
+                >
+                  English
+                </button>
+                <button
+                  onClick={() => {
+                    changeLanguage('ur');
+                    closeMenus();
+                  }}
+                  className={`px-3 py-1 rounded ${
+                    currentLanguage === 'ur'
+                      ? 'bg-green-600 text-white'
+                      : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                  }`}
+                >
+                  اردو
+                </button>
+              </div>
+            </div>
 
             {user ? (
               <>
                 <div className="border-t border-gray-200 mt-2 pt-2">
-                  <Link href="/profile" className="px-4 py-2 flex items-center text-gray-700" onClick={closeMenus}>
-                    <User size={18} className="mr-2" />
-                    <span>My Profile</span>
+                  <Link href="/profile" className={`px-4 py-2 flex items-center text-gray-700 ${isRTL ? 'flex-row-reverse justify-end' : ''}`} onClick={closeMenus}>
+                    <User size={18} className={`${isRTL ? 'ml-2' : 'mr-2'}`} />
+                    <span>{t('nav.profile')}</span>
                   </Link>
-                  <Link href="/favorites" className="px-4 py-2 flex items-center text-gray-700" onClick={closeMenus}>
-                    <Heart size={18} className="mr-2" />
-                    <span>Favorites</span>
+                  <Link href="/favorites" className={`px-4 py-2 flex items-center text-gray-700 ${isRTL ? 'flex-row-reverse justify-end' : ''}`} onClick={closeMenus}>
+                    <Heart size={18} className={`${isRTL ? 'ml-2' : 'mr-2'}`} />
+                    <span>{t('nav.favorites')}</span>
                   </Link>
-                  <Link href="/chat" className="px-4 py-2 flex items-center text-gray-700" onClick={closeMenus}>
-                    <MessageCircle size={18} className="mr-2" />
-                    <span>Messages</span>
+                  <Link href="/chat" className={`px-4 py-2 flex items-center text-gray-700 ${isRTL ? 'flex-row-reverse justify-end' : ''}`} onClick={closeMenus}>
+                    <MessageCircle size={18} className={`${isRTL ? 'ml-2' : 'mr-2'}`} />
+                    <span>{t('nav.chat')}</span>
                   </Link>
                   {user.role === "seller" && (
-                    <Link href="/profile" className="px-4 py-2 flex items-center text-gray-700" onClick={closeMenus}>
-                      <ShoppingBag size={18} className="mr-2" />
-                      <span>My Listings</span>
+                    <Link href="/profile" className={`px-4 py-2 flex items-center text-gray-700 ${isRTL ? 'flex-row-reverse justify-end' : ''}`} onClick={closeMenus}>
+                      <ShoppingBag size={18} className={`${isRTL ? 'ml-2' : 'mr-2'}`} />
+                      <span>{t('profile.my_listings')}</span>
                     </Link>
                   )}
-                  <Link href="/settings" className="px-4 py-2 flex items-center text-gray-700" onClick={closeMenus}>
-                    <User size={18} className="mr-2" />
-                    <span>Settings</span>
+                  <Link href="/settings" className={`px-4 py-2 flex items-center text-gray-700 ${isRTL ? 'flex-row-reverse justify-end' : ''}`} onClick={closeMenus}>
+                    <User size={18} className={`${isRTL ? 'ml-2' : 'mr-2'}`} />
+                    <span>{t('nav.settings')}</span>
                   </Link>
-                  <button onClick={handleLogout} className="w-full text-left px-4 py-2 flex items-center text-gray-700">
-                    <LogOut size={18} className="mr-2" />
-                    <span>Logout</span>
+                  <button onClick={handleLogout} className={`w-full ${isRTL ? 'text-right' : 'text-left'} px-4 py-2 flex items-center text-gray-700 ${isRTL ? 'flex-row-reverse justify-end' : ''}`}>
+                    <LogOut size={18} className={`${isRTL ? 'ml-2' : 'mr-2'}`} />
+                    <span>{t('nav.logout')}</span>
                   </button>
                 </div>
               </>
             ) : (
-              <div className="border-t border-gray-200 mt-2 pt-2">
-                <Link href="/login" className="block px-4 py-2 text-gray-700" onClick={closeMenus}>
-                  Login
+              <div className={`border-t border-gray-200 mt-2 pt-2 ${isRTL ? 'text-right' : ''}`}>
+                <Link href="/login" className={`block px-4 py-2 text-gray-700 ${isRTL ? 'text-right' : ''}`} onClick={closeMenus}>
+                  {t('auth.login')}
                 </Link>
                 <Link
                   href="/login"
-                  className="block mx-4 mt-2 px-4 py-2 bg-green-600 text-white text-center rounded-lg font-medium"
+                  className={`block mx-4 mt-2 px-4 py-2 bg-green-600 text-white text-center rounded-lg font-medium ${isRTL ? 'text-right' : ''}`}
                   onClick={closeMenus}
                 >
-                  Sign Up
+                  {t('auth.register')}
                 </Link>
               </div>
             )}
