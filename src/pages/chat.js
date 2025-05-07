@@ -1,25 +1,41 @@
 "use client"
 
-import { createContext, useCallback, useState, useEffect, useContext, useRef } from "react"
+import { useCallback, useState, useEffect, useContext, useRef } from "react"
 import { useRouter } from "next/router"
 import Head from "next/head"
 import Image from "next/image"
 import { Send, User, ArrowLeft } from "react-feather"
 import { ChatContext } from "../context/chatContext"
 import { AuthContext } from "../context/authContext"
+import { SocketContext } from "../context/socketContext"
 
 export default function Chat() {
   const router = useRouter()
   const { id } = router.query
   const { user } = useContext(AuthContext)
-  const { chats, currentChat, setCurrentChat, messages, loading, getChats, getChatMessages, sendMessage, onlineUsers } =
-    useContext(ChatContext)
+  const { onlineUsers } = useContext(SocketContext)
+  const { 
+    chats, 
+    currentChat, 
+    setCurrentChat, 
+    messages, 
+    setMessages,
+    loading, 
+    getChats, 
+    getChatMessages, 
+    sendMessage 
+  } = useContext(ChatContext)
 
   const [messageInput, setMessageInput] = useState("")
   const [isSending, setIsSending] = useState(false)
   const messagesEndRef = useRef(null)
+  const messageContainerRef = useRef(null)
   const [isMobileView, setIsMobileView] = useState(false)
   const [showChatList, setShowChatList] = useState(true)
+  const [initialLoad, setInitialLoad] = useState(true)
+  const [hasLoadedChats, setHasLoadedChats] = useState(false)
+
+  const { socket } = useContext(SocketContext)
 
   // Check if mobile view
   useEffect(() => {
@@ -35,51 +51,96 @@ export default function Chat() {
     }
   }, [])
 
-  // Fetch chats on component mount
+  // Fetch chats on component mount, but only once
   useEffect(() => {
-    if (user) {
-      getChats()
-    } else {
-      router.push("/login")
+    const loadChats = async () => {
+      if (user && !hasLoadedChats) {
+        await getChats()
+        setHasLoadedChats(true)
+        setInitialLoad(false)
+      } else if (!user) {
+        router.push("/login")
+      }
     }
-  }, [user, getChats, router])
+    
+    loadChats()
+  }, [user, hasLoadedChats, getChats, router])
+
+  // Socket event listeners with proper cleanup
+  useEffect(() => {
+    if (!socket || !currentChat) return
+
+    const handleReceiveMessage = (newMessage) => {
+      // Check if message belongs to current chat and doesn't already exist
+      if (newMessage.chat === currentChat._id) {
+        setMessages(prev => {
+          if (prev.some(m => m._id === newMessage._id)) return prev
+          return [...prev, newMessage]
+        })
+      }
+    }
+
+    const handleChatUpdate = (updatedChatId) => {
+      if (updatedChatId === currentChat._id) {
+        // Only fetch if we don't have the latest message
+        if (messages.length === 0 || 
+            !messages.some(m => m._id === currentChat.lastMessage?._id)) {
+          getChatMessages(updatedChatId)
+        }
+      }
+    }
+
+    socket.on('receiveMessage', handleReceiveMessage)
+    socket.on('chatUpdated', handleChatUpdate)
+
+    return () => {
+      socket.off('receiveMessage', handleReceiveMessage)
+      socket.off('chatUpdated', handleChatUpdate)
+    }
+  }, [socket, currentChat, messages, getChatMessages, setMessages])
 
   // Set current chat based on URL param
   useEffect(() => {
-    if (id && chats.length > 0) {
+    if (id && chats.length > 0 && user && !loading) {
       const chat = chats.find((chat) => chat._id === id)
-      if (chat) {
-        setCurrentChat(chat)
-        setShowChatList(false)
+      
+      if (chat && (chat.buyer._id === user._id || chat.seller._id === user._id)) {
+        if (!currentChat || currentChat._id !== chat._id) {
+          setCurrentChat(chat)
+          setShowChatList(false)
+          getChatMessages(chat._id)
+        }
+      } else if (!chat && currentChat) {
+        setCurrentChat(null)
       }
     }
-  }, [id, chats, setCurrentChat])
-
-  // Fetch messages when current chat changes
-  useEffect(() => {
-    if (currentChat) {
-      getChatMessages(currentChat._id)
-    }
-  }, [currentChat, getChatMessages])
+  }, [id, chats, user, loading, currentChat, setCurrentChat, getChatMessages])
 
   // Scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    if (messages.length > 0 && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
+    }
   }, [messages])
 
-  const handleChatSelect = (chat) => {
-    setCurrentChat(chat)
-    router.push(`/chat?id=${chat._id}`, undefined, { shallow: true })
+  const handleChatSelect = useCallback((chat) => {
+    if (chat.buyer._id === user._id || chat.seller._id === user._id) {
+      if (!currentChat || currentChat._id !== chat._id) {
+        setCurrentChat(chat)
+        router.push(`/chat?id=${chat._id}`, undefined, { shallow: true })
+        getChatMessages(chat._id)
+      }
 
-    if (isMobileView) {
-      setShowChatList(false)
+      if (isMobileView) {
+        setShowChatList(false)
+      }
     }
-  }
+  }, [user, currentChat, router, getChatMessages, isMobileView, setCurrentChat])
 
   const handleSendMessage = async (e) => {
     e.preventDefault()
 
-    if (!messageInput.trim() || !currentChat) return
+    if (!messageInput.trim() || !currentChat || isSending) return
 
     try {
       setIsSending(true)
@@ -110,8 +171,20 @@ export default function Chat() {
     setShowChatList(true)
   }
 
+  // Show nothing initially until the user data is loaded
   if (!user) {
     return null // Will redirect to login in useEffect
+  }
+
+  // Show a blank state when the component first loads
+  if (initialLoad) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg font-semibold">Loading your messages...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -152,59 +225,61 @@ export default function Chat() {
                     </div>
                   ) : (
                     <div className="overflow-y-auto h-full">
-                      {chats.map((chat) => {
-                        const otherUser = getOtherUser(chat)
-                        const isOnline = isUserOnline(otherUser?._id)
+                      {chats
+                        .filter(chat => chat.buyer._id === user._id || chat.seller._id === user._id)
+                        .map((chat) => {
+                          const otherUser = getOtherUser(chat)
+                          const isOnline = isUserOnline(otherUser?._id)
 
-                        return (
-                          <div
-                            key={chat._id}
-                            onClick={() => handleChatSelect(chat)}
-                            className={`flex items-center p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
-                              currentChat && currentChat._id === chat._id ? "bg-green-50" : ""
-                            }`}
-                          >
-                            <div className="relative">
-                              <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                                {otherUser?.profileImage ? (
-                                  <Image
-                                    src={otherUser.profileImage || "/placeholder.svg"}
-                                    alt={otherUser.name}
-                                    width={48}
-                                    height={48}
-                                    className="rounded-full"
-                                  />
-                                ) : (
-                                  <User size={24} className="text-gray-500" />
+                          return (
+                            <div
+                              key={chat._id}
+                              onClick={() => handleChatSelect(chat)}
+                              className={`flex items-center p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
+                                currentChat && currentChat._id === chat._id ? "bg-green-50" : ""
+                              }`}
+                            >
+                              <div className="relative">
+                                <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                                  {otherUser?.profileImage ? (
+                                    <Image
+                                      src={otherUser.profileImage || "/placeholder.svg"}
+                                      alt={otherUser.name}
+                                      width={48}
+                                      height={48}
+                                      className="rounded-full"
+                                    />
+                                  ) : (
+                                    <User size={24} className="text-gray-500" />
+                                  )}
+                                </div>
+                                {isOnline && (
+                                  <span className="absolute bottom-0 right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
                                 )}
                               </div>
-                              {isOnline && (
-                                <span className="absolute bottom-0 right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
-                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-center mb-1">
+                                  <h3 className="font-medium text-gray-800 truncate">{otherUser?.name}</h3>
+                                  {chat.latestMessage && (
+                                    <span className="text-xs text-gray-500">
+                                      {formatTime(chat.latestMessage.createdAt)}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <p className="text-sm text-gray-600 truncate">
+                                    {chat.latestMessage ? chat.latestMessage.content : "No messages yet"}
+                                  </p>
+                                  {chat.unreadCount > 0 && (
+                                    <span className="ml-2 bg-green-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                                      {chat.unreadCount}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex justify-between items-center mb-1">
-                                <h3 className="font-medium text-gray-800 truncate">{otherUser?.name}</h3>
-                                {chat.latestMessage && (
-                                  <span className="text-xs text-gray-500">
-                                    {formatTime(chat.latestMessage.createdAt)}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex justify-between items-center">
-                                <p className="text-sm text-gray-600 truncate">
-                                  {chat.latestMessage ? chat.latestMessage.content : "No messages yet"}
-                                </p>
-                                {chat.unreadCount > 0 && (
-                                  <span className="ml-2 bg-green-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                                    {chat.unreadCount}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        )
-                      })}
+                          )
+                        })}
                     </div>
                   )}
                 </div>
@@ -251,7 +326,7 @@ export default function Chat() {
                       </div>
 
                       {/* Messages */}
-                      <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
+                      <div className="flex-1 p-4 overflow-y-auto bg-gray-50" ref={messageContainerRef}>
                         {loading ? (
                           <div className="flex flex-col gap-2">
                             {[...Array(5)].map((_, index) => (
